@@ -5,15 +5,20 @@
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
 <title>OAuth 2.0 direct interation for native clients using federation</title>
-<meta content="Aaron Parecki" name="author">
 <meta content="Yaron Zehavi" name="author">
+<meta content="Aaron Parecki" name="author">
 <meta content="
-        defined OAuth 2.0  for  Native Apps, through external user-agents,
-primarily the user's browser. This document addresses OAuth 2.0  by  Native Apps,
-and defines the Native Authorization Endpoint, which supports a first-party client that
-wants to control the process of obtaining authorization from the user using a native experience. 
-       In many cases, this can provide an entirely browserless OAuth 2.0 experience suited for native
-applications, only delegating to the browser in unexpected, high risk, or error conditions. 
+        defined native OAuth 2.0  direct interaction ,
+whereby native clients do not use web redirects to send users to the authorization server
+who afterwards redirects them back to the client. Instead, direct interaction employs the
+ Native Authorization Endpoint  as an HTTP REST API, enabling the authorization server to
+instruct client how to provide information from users, such as responses to authentication
+challenges.
+While FiPA   focused on a one-to-one relationship between
+client and authorization server, this document acts as its  extension  and adds support
+to enable authorization servers to federate the interaction to a downstream authorization server,
+instruct the usage of a native app for user interaction, and instruct collecting additional
+information from users needed to guide request routing. 
     " name="description">
 <meta content="xml2rfc 3.31.0" name="generator">
 <meta content="native apps" name="keyword">
@@ -1054,7 +1059,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <td class="right">December 2025</td>
 </tr></thead>
 <tfoot><tr>
-<td class="left">Parecki &amp; Zehavi</td>
+<td class="left">Zehavi &amp; Parecki</td>
 <td class="center">Expires 25 June 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
@@ -1077,12 +1082,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
-      <div class="author-name">A. Parecki</div>
-<div class="org">Okta</div>
-</div>
-<div class="author">
       <div class="author-name">Y. Zehavi</div>
 <div class="org">Raiffeisen Bank International</div>
+</div>
+<div class="author">
+      <div class="author-name">A. Parecki</div>
+<div class="org">Okta</div>
 </div>
 </dd>
 </dl>
@@ -1090,12 +1095,17 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <h1 id="title">OAuth 2.0 direct interation for native clients using federation</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1"><span>[<a href="#RFC8252" class="cite xref">RFC8252</a>]</span> defined OAuth 2.0 <strong>for</strong> Native Apps, through external user-agents,
-primarily the user's browser. This document addresses OAuth 2.0 <strong>by</strong> Native Apps,
-and defines the Native Authorization Endpoint, which supports a first-party client that
-wants to control the process of obtaining authorization from the user using a native experience.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
-<p id="section-abstract-2">In many cases, this can provide an entirely browserless OAuth 2.0 experience suited for native
-applications, only delegating to the browser in unexpected, high risk, or error conditions.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
+<p id="section-abstract-1"><span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> defined native OAuth 2.0 <strong>direct interaction</strong>,
+whereby native clients do not use web redirects to send users to the authorization server
+who afterwards redirects them back to the client. Instead, direct interaction employs the
+<em>Native Authorization Endpoint</em> as an HTTP REST API, enabling the authorization server to
+instruct client how to provide information from users, such as responses to authentication
+challenges.
+While FiPA <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> focused on a one-to-one relationship between
+client and authorization server, this document acts as its <strong>extension</strong> and adds support
+to enable authorization servers to federate the interaction to a downstream authorization server,
+instruct the usage of a native app for user interaction, and instruct collecting additional
+information from users needed to guide request routing.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1103,7 +1113,7 @@ applications, only delegating to the browser in unexpected, high risk, or error 
       </h2>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
-        The latest revision of this draft can be found at <span><a href="https://yaron-zehavi.github.io/oauth-native-clients-direct-interation-with-federation/draft-ietf-oauth-first-party-apps.html">https://yaron-zehavi.github.io/oauth-native-clients-direct-interation-with-federation/draft-ietf-oauth-first-party-apps.html</a></span>.
+        The latest revision of this draft can be found at <span><a href="https://yaron-zehavi.github.io/oauth-native-clients-direct-interation-with-federation/draft-zehavi-oauth-native-clients-direct-interation-with-federation.html">https://yaron-zehavi.github.io/oauth-native-clients-direct-interation-with-federation/draft-zehavi-oauth-native-clients-direct-interation-with-federation.html</a></span>.
         Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-zehavi-oauth-native-clients-direct-interation-with-federation/">https://datatracker.ietf.org/doc/draft-zehavi-oauth-native-clients-direct-interation-with-federation/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">
         Discussion of this document takes place on the
@@ -1419,27 +1429,20 @@ applications, only delegating to the browser in unexpected, high risk, or error 
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">This document, OAuth for First-Party Apps (FiPA),
-extends the OAuth 2.0 Authorization Framework <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> with
-a new endpoint, <code>native_authorization_endpoint</code>, to support first-party
-applications that want to control the process of obtaining authorization
-from the user using a native experience.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">The client collects any initial information from the user and POSTs that information
-as well as information about the client's request to the Native Authorization Endpoint,
-and receives either an authorization code or an error code in response. The error code
-may indicate that the client can continue to prompt the user for more information,
-should federate the request to a downstream Authorization Server by invoking their
-Native Authorization Endpoint, or can indicate that the client needs to launch
-another app or a browser to have the user complete the flow in a browser.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">The Native Authorization Endpoint is used to initiate the OAuth flow in place of redirecting
-or launching a browser to the authorization endpoint.<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4">While a fully-delegated approach using the redirect-based Authorization Code grant is generally
-preferred, this draft provides a mechanism for the client to directly interact
-with the user. This requires a high degree of trust between the authorization server
-and the client, as there typically is for first-party applications.
-It should only be considered when there are usability
-concerns with a redirect-based approach, such as for native mobile or desktop applications.<a href="#section-1-4" class="pilcrow">¶</a></p>
-<p id="section-1-5">This draft also extends the token response (typically for use in response to a refresh token request) and resource server response to allow the authorization server or resource server to indicate that the client should re-request authorization from the user. This can include requesting step-up authentication by including parameters defined in <span>[<a href="#RFC9470" class="cite xref">RFC9470</a>]</span> as well.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-1">This document, OAuth 2.0 direct interation for native clients using federation,
+extends FiPA <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> to enable federation based flows,
+while retaining the client's direct interaction with end-user.
+The client calls the <em>Native Authorization Endpoint</em> as an HTTP REST API, and receives
+instructions as error responses, in line with the protocol established by FiPA,
+guiding client to call downstream authorization servers and providing their responses
+to federating authorization servers. This establishes a multi authorization server
+federated flow, driven by the client app.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">This document extends FiPA <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> with new error responses:
+<code>federate</code>, <code>redirect_to_app</code>, <code>insufficient_information</code> and
+<code>native_authorization_federate_unsupported</code>.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">It also adds additional response parameters:
+<code>federation_uri</code>, <code>federation_body</code>, <code>response_uri</code>, <code>deep_link</code>.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">And the <code>native_callback_uri</code> request parameter.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <div id="usage-and-applicability">
 <section id="section-1.1">
         <h3 id="name-usage-and-applicability">
@@ -2588,6 +2591,10 @@ an authorization request and eventually obtain an authorization code.<a href="#s
 <dt id="I-D.ietf-oauth-cross-device-security">[I-D.ietf-oauth-cross-device-security]</dt>
         <dd>
 <span class="refAuthor">Kasselman, P.</span>, <span class="refAuthor">Fett, D.</span>, and <span class="refAuthor">F. Skokan</span>, <span class="refTitle">"Cross-Device Flows: Security Best Current Practice"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-cross-device-security-13</span>, <time datetime="2025-12-02" class="refDate">2 December 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-cross-device-security-13">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-cross-device-security-13</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.ietf-oauth-first-party-apps">[I-D.ietf-oauth-first-party-apps]</dt>
+        <dd>
+<span class="refAuthor">Parecki, A.</span>, <span class="refAuthor">Fletcher, G.</span>, and <span class="refAuthor">P. Kasselman</span>, <span class="refTitle">"OAuth 2.0 for First-Party Applications"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-first-party-apps-02</span>, <time datetime="2025-10-20" class="refDate">20 October 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-first-party-apps-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-first-party-apps-02</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="IANA.JWT">[IANA.JWT]</dt>
         <dd>
@@ -3765,19 +3772,19 @@ Cache-Control: no-store
 <a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
 <address class="vcard">
-        <div dir="auto" class="left"><span class="fn nameRole">Aaron Parecki</span></div>
-<div dir="auto" class="left"><span class="org">Okta</span></div>
-<div class="email">
-<span>Email:</span>
-<a href="mailto:aaron@parecki.com" class="email">aaron@parecki.com</a>
-</div>
-</address>
-<address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">Yaron Zehavi</span></div>
 <div dir="auto" class="left"><span class="org">Raiffeisen Bank International</span></div>
 <div class="email">
 <span>Email:</span>
 <a href="mailto:yaron.zehavi@rbinternational.com" class="email">yaron.zehavi@rbinternational.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Aaron Parecki</span></div>
+<div dir="auto" class="left"><span class="org">Okta</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:aaron@parecki.com" class="email">aaron@parecki.com</a>
 </div>
 </address>
 </section>
