@@ -129,7 +129,7 @@ extends FiPA {{I-D.ietf-oauth-first-party-apps}} to enable federation based flow
 while retaining client's direct interaction with end-user.
 
 The client calls the *Native Authorization Endpoint* as an HTTP REST API, and receives
-instructions as error responses, in line with the protocol established by FiPA,
+instructions according to the protocol established by FiPA,
 guiding client to call downstream authorization servers and providing their responses
 to federating authorization servers. This establishes a multi authorization server
 federated flow, whose user interactions are driven by the client app.
@@ -141,7 +141,7 @@ This document extends FiPA {{I-D.ietf-oauth-first-party-apps}} with new error re
 It also adds additional response parameters:
 `federation_uri`, `federation_body`, `response_uri`, `deep_link`.
 
-And the `native_callback_uri` request parameter.
+And adds the `native_callback_uri` request parameter.
 
 # Conventions and Definitions
 
@@ -233,131 +233,22 @@ Before authorization servers instruct a client to federate to a downstream autho
 When federating to downstream authorization servers, the usage of PAR {{RFC9126}} with client authentication is REQUIRED, as the native client calling the Native Authorization Endpoint of a federated authorization server is not *its* OAuth client and therefore has no other means of authenticating.
 When using PAR with client authentication, the request_uri provided to the Native Authorization Endpoint attests that client authentication took place.
 
-## Token endpoint
-
-The token endpoint is used by the client to obtain an access token by
-presenting its authorization grant or refresh token, as described in
-Section 3.2 of OAuth 2.0 {{RFC6749}}.
-
-This specification extends the token endpoint response to allow the authorization
-server to indicate that further authentication of the user is required.
-
-
-# Authorization Initiation {#authorization-initiation}
-
-A client may wish to initiate an authorization flow by first prompting the user for their user identifier or other account information. The native authorization endpoint is a new endpoint to collect this login hint and direct the client with the next steps, whether that is to do an MFA flow, or perform an OAuth redirect-based flow.
-
-In order to preserve the security of this specification, the Authorization Server MUST verify the "first-partyness" of the client before continuing with the authentication flow. Please see {{first-party-applications}} for additional considerations.
-
 ## Native Authorization Request {#native-auth-request}
 
-The client makes a request to the native authorization endpoint by adding the
-following parameters, as well as parameters from any extensions, using the `application/x-www-form-urlencoded`
-format with a character encoding of UTF-8 in the HTTP request body:
-
-"client_id":
-: REQUIRED if the client is not authenticating with the
-  authorization server and if no `auth_session` is included.
-
-"scope":
-: OPTIONAL. The OAuth scope defined in {{RFC6749}}.
-
-"auth_session":
-: OPTIONAL. If the client has previously obtained an auth session, described in {{auth-session}}.
-
-"code_challenge":
-: OPTIONAL. The code challenge as defined by {{RFC7636}}.
-  See {{redirect-to-web}} for details.
-
-"code_challenge_method":
-: OPTIONAL. The code challenge method as defined by {{RFC7636}}.
-  See {{redirect-to-web}} for details.
+The native authorization endpoint is called as defined by FiPA {{I-D.ietf-oauth-first-party-apps}}.
+This document adds the following request parameter:
 
 "native_callback_uri":
 : OPTIONAL. Native client app's **redirect_uri**, claimed as deep link. *native_callback_uri* SHALL be natively invoked by authorization server's user-interacting app to provide its response to the client app. If native_callback_uri is included in a native authorization request, authorization server MUST include the native_callback_uri when federating to another authorization server.
 
-Specific implementations as well as extensions to this specification MAY define additional parameters to be used at this endpoint.
-
-For example, the client makes the following request to initiate a flow
-given the user's phone number, line breaks shown for illustration purposes only:
-
-    POST /native-authorization HTTP/1.1
-    Host: server.example.com
-    Content-Type: application/x-www-form-urlencoded
-
-    login_hint=%2B1-310-123-4567&scope=profile
-    &client_id=bb16c14c73415
-
 ## Native Authorization Response {#native-response}
 
-The authorization server determines whether the information provided up to this point is sufficient to issue an authorization code, and if so responds with an authorization code. If the information is not sufficient for issuing an authorization code, then the authorization server MUST respond with an error response.
+### Error Response {#native-authorization-error-response}
 
-### Authorization Code Response {#authorization-code-response}
-
-The authorization server issues an authorization code
-by creating an HTTP response content using the `application/json`
-media type as defined by {{RFC8259}} with the following parameters
-and an HTTP 200 (OK) status code:
-
-"authorization_code":
-:   REQUIRED. The authorization code issued by the authorization server.
-
-For example,
-
-    HTTP/1.1 200 OK
-    Content-Type: application/json
-    Cache-Control: no-store
-
-    {
-      "authorization_code": "uY29tL2F1dGhlbnRpY"
-    }
-
-### Error Response {#challenge-error-response}
-
-If the request contains invalid parameters or incorrect data,
-or if the authorization server wishes to interact with the user directly,
-the authorization server responds with an HTTP 400 (Bad Request)
-status code (unless specified otherwise below) and includes the following
-parameters with the response:
+This document extends FiPA {{I-D.ietf-oauth-first-party-apps}} by adding the following error codes:
 
 "error":
 :    REQUIRED.  A single ASCII {{USASCII}} error code from the following:
-
-     "invalid_request":
-     :     The request is missing a required parameter, includes an
-           unsupported parameter value,
-           repeats a parameter, includes multiple credentials,
-           utilizes more than one mechanism for authenticating the
-           client, or is otherwise malformed.
-
-     "invalid_client":
-     :     Client authentication failed (e.g., unknown client, no
-           client authentication included, or unsupported
-           authentication method).  The authorization server MAY
-           return an HTTP 401 (Unauthorized) status code to indicate
-           which HTTP authentication schemes are supported.  If the
-           client attempted to authenticate via the `Authorization`
-           request header field, the authorization server MUST
-           respond with an HTTP 401 (Unauthorized) status code and
-           include the `WWW-Authenticate` response header field
-           matching the authentication scheme used by the client.
-
-     "unauthorized_client":
-     :     The authenticated client is not authorized to use this
-           endpoint.
-
-     "invalid_session":
-     :     The provided `auth_session` is
-           invalid, expired, revoked, or is otherwise invalid.
-
-     "invalid_scope":
-     :     The requested scope is invalid, unknown, malformed, or
-           exceeds the scope granted by the resource owner.
-
-     "insufficient_authorization":
-     :     The presented authorization is insufficient, and the authorization
-           server is requesting the client take additional steps to
-           complete the authorization.
 
      "insufficient_information":
      :     the Authorization Server requires additional user input,
@@ -377,48 +268,12 @@ parameters with the response:
            *federation_uri* response parameter.
            See {{redirect-to-app-response}} for details.
 
-     "redirect_to_web":
-     :     The request is not able to be fulfilled with any further
-           direct interaction with the user. Instead, the client
-           should initiate a new authorization code flow so that the
-           user interacts with the authorization server in a web browser.
-           See {{redirect-to-web}} for details.
-
      "native_authorization_federate_unsupported":
      :     The authorization server intended to federate to
            a downstream authorization server, but it does not
            support the native authorization endpoint.
 
-     Values for the `error` parameter MUST NOT include characters
-     outside the set %x20-21 / %x23-5B / %x5D-7E.
-
-     The authorization server MAY extend these error codes with custom
-     messages based on the requirements of the authorization server.
-
-"error_description":
-:    OPTIONAL.  Human-readable ASCII {{USASCII}} text providing
-     additional information, used to assist the client developer in
-     understanding the error that occurred.
-     Values for the `error_description` parameter MUST NOT include
-     characters outside the set %x20-21 / %x23-5B / %x5D-7E.
-
-"error_uri":
-:    OPTIONAL.  A URI identifying a human-readable web page with
-     information about the error, used to provide the client
-     developer with additional information about the error.
-     Values for the `error_uri` parameter MUST conform to the
-     URI-reference syntax and thus MUST NOT include characters
-     outside the set %x21 / %x23-5B / %x5D-7E.
-
-"auth_session":
-:    OPTIONAL.  The auth session allows the authorization server to
-     associate subsequent requests by this client with an ongoing
-     authorization request sequence. The client MUST include
-     the `auth_session` in follow-up requests to the native authorization
-     endpoint if it receives one along with the error response.
-
-"request_uri":
-:    OPTIONAL.  A request URI as described by {{RFC9126}} Section 2.2.
+And adds the following response attributes:
 
 "federation_uri":
 :    OPTIONAL.  The Native Authorization Endpoint of a downstream
@@ -435,29 +290,6 @@ parameters with the response:
 "response_uri":
 :    OPTIONAL.  A URI of an endpoint of federating authorization server
      which shall receive the response from the federated authorization server.
-
-"expires_in":
-:    OPTIONAL.  The lifetime of the `request_uri` in seconds, as
-     described by {{RFC9126}} Section 2.2.
-
-This specification requires the authorization server to define new
-error codes that relate to the actions the client must take in order
-to properly authenticate the user. These new error codes are specific
-to the authorization server's implementation of this specification and are
-intentionally left out of scope.
-
-The parameters are included in the content of the HTTP response
-using the `application/json` media type as defined by [RFC7159].  The
-parameters are serialized into a JSON structure by adding each
-parameter at the highest structure level.  Parameter names and string
-values are included as JSON strings.  Numerical values are included
-as JSON numbers.  The order of parameters does not matter and can
-vary.
-
-The authorization server MAY define additional parameters in the response
-depending on the implementation. The authorization server MAY also define
-more specific content types for the error responses as long as the response
-is JSON and conforms to `application/<AS-defined>+json`.
 
 #### Federating Response {#federating-response}
 
@@ -492,13 +324,6 @@ as application/x-www-form-urlencoded request body. Example:
 
     client_id=s6BhdRkqt3&request_uri=
     urn:ietf:params:oauth:request_uri:R3p_hzwsR7outNQSKfoX
-
-
-The federated authorization server should consider end-user's privacy and security
-to determine if it should present authorization challenges in federation scenarios.
-For example, it can label **federating** clients as such and avoid serving them
-authorization challenges, as user-serving clients receiving those challenges are
-not first party clients.
 
 The client MUST provide any response obtained from the **federated** authorization server,
 as application/x-www-form-urlencoded request body for the *response_uri* of the respective
@@ -691,231 +516,15 @@ Example of *Client App* response following end-user input entry:
     auth_session=ce6772f5e07bc8361572f
     &email=end_user@example.as.com
 
-
-#### Redirect to Web Error Response {#redirect-to-web}
-
-The authorization server may choose to interact directly with the user based on a risk
-assesment, the introduction of a new authentication method not supported
-in the application, or to handle an exception flow like account recovery.
-To indicate this error to the client, the authorization server returns an
-error response as defined above with the `redirect_to_web` error code.
-
-In this case, the client is expected to initiate a new OAuth
-Authorization Code flow with PKCE according to {{RFC6749}} and {{RFC7636}}.
-
-If the client expects the frequency of this error response to be high,
-the client MAY include a PKCE {{RFC7636}} `code_challenge` in the initial authorization
-challenge request. This enables the authorization server to essentially treat
-the authorization challenge request as a PAR {{RFC9126}} request, and
-return the `request_uri` and `expires_in` as defined by {{RFC9126}} in the error response.
-The client then uses the `request_uri` value to build an authorization request
-as defined in {{RFC9126}} Section 4.
-
-
-## Intermediate Requests
-
-If the authorization server returns an `insufficient_authorization` error as described above, this is an indication that there is further information the client should request from the user, and continue to make requests to the authorization server until the authorization request is fulfilled and an authorization code returned.
-
-These intermediate requests are out of scope of this specification, and are expected
-to be defined by the authorization server. The format of these requests is not required
-to conform to the format of the initial authorization challenge requests
-(e.g. the request format may be `application/json` rather than `application/x-www-form-urlencoded`).
-
-These intermediate requests MAY also be sent to proprietary endpoints at the authorization server
-rather than the Native Authorization Endpoint.
-
-
-### Auth Session {#auth-session}
-
-The `auth_session` is a value that the authorization server issues in order to be able to associate subsequent requests from the same client. It is intended to be analagous to how a browser cookie associates multiple requests by the same browser to the authorization server.
-
-The `auth_session` value is completely opaque to the client, and as such the authorization server MUST adequately protect the value from inspection by the client, for example by using a random string or using a JWE if the authorization server is not maintaining state on the backend.
-
-If the client has an `auth_session`, the client MUST include it in future requests to the native authorization endpoint of the respective authorization server that provided it. The client MUST store the `auth_session` beyond the issuance of the authorization code to be able to use it in future requests.
-
-Every response defined by this specification may include a new `auth_session` value. Clients MUST NOT assume that `auth_session` values are static, and MUST be prepared to update the stored `auth_session` value if one is received in a response.
-
-To mitigate the risk of session hijacking, the 'auth_session' MUST be bound to the device, and the authorization server MUST reject an 'auth_session' if it is presented from a different device than the one it was bound to.
-
-See {{auth-session-security}} for additional security considerations.
-
-# Token Request {#token-request}
-
-The client makes a request to the token endpoint using the authorization code it obtained from the native authorization endpoint.
-
-This specification does not define any additional parameters beyond the token request parameters defined in  Section 4.1.3 of {{RFC6749}}. However, notably, the `redirect_uri` parameter will not be included in this request, because no `redirect_uri` parameter was included in the authorization request.
-
-## Token Endpoint Successful Response
-
-This specification extends the OAuth 2.0 {{RFC6749}} token response
-defined in Section 5.1 with the additional parameter `auth_session`, defined in {{auth-session}}.
-
-An example successful token response is below:
-
-    HTTP/1.1 200 OK
-    Content-Type: application/json
-    Cache-Control: no-store
-
-    {
-      "access_token": "2YotnFZFEjr1zCsicMWpAA",
-      "token_type": "Bearer",
-      "expires_in": 3600,
-      "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA",
-      "auth_session": "uY29tL2F1dGhlbnRpY"
-    }
-
-The response MAY include an `auth_session` parameter which the client is expected to include on any subsequent requests to the native challenge endpoint, as described in {{auth-session}}. The `auth_session` parameter MAY also be included even if the authorization code was obtained through a traditional OAuth authorization code flow rather than the flow defined by this specification.
-
-Including the `auth_session` parameter in the token response enables flows such as step-up authentication {{RFC9470}}, so that the authorization server can restore the context of a previous session and prompt only for the needed step-up factors. See {{step-up-sms-example}} for an example application.
-
-
-## Token Endpoint Error Response
-
-Upon any request to the token endpoint, including a request with a valid refresh token,
-the authorization server can respond with an authorization challenge instead of a successful access token response.
-
-An authorization challenge error response is a particular type of
-error response as defined in Section 5.2 of OAuth 2.0 {{RFC6749}} where
-the error code is set to the following value:
-
-"error": "insufficient_authorization":
-: The presented authorization is insufficient, and the authorization
-  server is requesting the client take additional steps to
-  complete the authorization.
-
-Additionally, the response MAY contain an `auth_session` parameter which the client is expected to include on a subsequent request to the native authorization endpoint.
-
-"auth_session":
-:    OPTIONAL.  The optional auth session value allows the authorization server to
-     associate subsequent requests by this client with an ongoing
-     authorization request sequence. The client MUST include
-     the `auth_session` in follow-up requests to the native authorizaion
-     endpoint if it receives one along with the error response.
-
-For example:
-
-    HTTP/1.1 403 Forbidden
-    Content-Type: application/json
-    Cache-Control: no-store
-
-    {
-      "error": "insufficient_authorization",
-      "auth_session": "ce6772f5e07bc8361572f"
-    }
-
-
-# Resource Server Error Response
-
-Step-Up Authentication {{RFC9470}} defines new error code values that a resource server can use to tell the client to start a new authorization request including `acr_values` and `max_age` from {{OpenID}}. Upon receiving this error response, the client starts a new first-party authorization request at the native authorization endpoint, and includes the `acr_values`, `max_age` and `scope` that were returned in the error response.
-
-This specification does not define any new parameters for the resource server error response beyond those defined in {{RFC9470}} and {{RFC6750}}.
-
-# Authorization Server Metadata {#authorization-server-metadata}
-
-The following authorization server metadata parameters {{RFC8414}} are introduced to signal the server's capability and policy with respect to first-party applications.
-
-"native_authorization_endpoint":
-: The URL of the native authorization endpoint at which a client can initiate
-  an authorization request and eventually obtain an authorization code.
-
-
 # Security Considerations {#security-considerations}
 
-## First-Party Applications {#first-party-applications}
+## Non First-Party applications of federated authorization servers {#first-party-applications}
 
-First-party applications are applications that are controlled by the same entity as the authorization server used by the application, and the user understands them both as the same entity.
-
-For first-party applications, it is important that the user recognizes the application and authorization server as belonging to the same brand. For example, a bank publishing their own mobile application.
-
-Because this specification enables a client application to interact directly with the end user, and the application handles sending any information collected from the user to the authorization server, it is expected to be used only for first-party applications when the authorization server also has a high degree of trust of the client.
-
-This specification is not prescriptive on how the Authorization Server establishes its trust in the first-partyness of the application. For mobile platforms, most support some mechanism for application attestation that can be used to identify the entity that created/signed/uploaded the app to the app store. App attestation can be combined with mechanisms such as Attestation-Based Client Authentication [[I-D.ietf-oauth-attestation-based-client-auth]] or Dynamic Client Registration {{RFC7591}} to enable strong client authentication in addition to client verification (first-partyness). The exact steps required are out of scope for this specification. Note that applications running inside a browser (e.g. Single Page Apps) context it is much more difficult to verify the first-partyness of the client. Please see {{single-page-apps}} for additional details.
-
-## Phishing {#phishing}
-
-There are two ways using this specification increases the risk of phishing.
-
-1. Malicious application: With this specification, the client interacts directly with the end user, collecting information provided by the user and sending it to the authorization server. If an attacker impersonates the client and successfully tricks a user into using it, they may not realize they are giving their credentials to the malicious application.
-2. User education: In a traditional OAuth deployment using the redirect-based authorization code flow, the user will only ever enter their credentials at the authorization server, and it is straightforward to explain to avoid entering credentials in other "fake" websites. By introducing a new place the user is expected to enter their credentials using this specification, it is more complicated to teach users how to recognize other fake login prompts that might be attempting to steal their credentials.
-
-Because of these risks, the authorization server MAY decide to require that the user go through a redirect-based flow at any stage of the process based on its own risk assessment.
-
-
-## Credential Stuffing Attacks {#credential-attacks}
-
-The native authorization endpoint is capable of directly receiving user credentials and returning authorization codes. This exposes a new vector to perform credential stuffing attacks, if additional measures are not taken to ensure the authenticity of the application.
-
-An authorization server may already have a combination of built-in or 3rd party security tools in place to monitor and reduce this risk in browser-based authentication flows. Implementors SHOULD consider similar security measures to reduce this risk in the native authorization endpoint. Additionally, the attestation APIs SHOULD be used when possible to assert a level of confidence to the authorization server that the request is originating from an application owned by the same party.
-
-## Sender-Constrained Tokens
-
-Tokens issued in response to an authorization challenge request SHOULD be sender constrained to mitigate the risk of token theft and replay.
-
-Proof-of-Possession techniques constrain tokens by binding them to a cryptographic key. Whenever the token is presented, it MUST be accompanied by a proof that the client presenting the token also controls the cryptographic key bound to the token. If a proof-of-possession sender constrained token is presented without valid proof of possession of the cryptographic key, it MUST be rejected.
-
-### DPoP: Demonstrating Proof-of-Possession
-
-DPoP {{RFC9449}} is an application-level mechanism for sender-constraining OAuth {{RFC6749}} access and refresh tokens. If DPoP is used to sender constrain tokens, the client SHOULD use DPoP for every token request to the Authorization Server and interaction with the Resource Server.
-
-DPoP includes an optional capability to bind the authorization code to the DPoP key to enable end-to-end binding of the entire authorization flow. Given the back-channel nature of this specification, there are far fewer opportunities for an attacker to access the authorization code and PKCE code verifier compared to the redirect-based Authorization Code Flow. In this specification, the Authorization Code is obtained via a back-channel request. Despite this, omitting Authorization Code binding leaves a gap in the end-to-end protection that DPoP provides, so DPoP Authorization Code binding SHOULD be used.
-
-The mechanism for Authorization Code binding with DPoP is similar as that defined for Pushed Authorization Requests (PARs) in Section 10.1 of {{RFC9449}}. In order to bind the Authorization Code with DPoP, the client MUST add the DPoP header to the Authorization Challenge Request. The authorization server MUST check the DPoP proof JWT that was included in the DPoP header as defined in Section 4.3 of {{RFC9449}}. The authorization server MUST ensure that the same key is used in all subsequent Authorization Challenge Requests and in the eventual token request. The authorization server MUST reject subsequent Authorization Challenge Requests, or the eventual token request, unless a DPoP proof for the same key presented in the original Authorization Challenge Request is provided.
-
-The above mechanism simplifies the implementation of the client, as it can attach the DPoP header to all requests to the authorization server regardless of the type of request. This mechanism provides a stronger binding than using the `dpop_jkt` parameter, as the DPoP header contains a proof of possession of the private key.
-
-### Other Proof of Possession Mechanisms
-
-It may be possible to use other proof of possession mechanisms to sender constrain access and refresh tokens. Defining these mechanisms are out of scope for this specification.
-
-## Auth Session {#auth-session-security}
-
-### Auth Session DPoP Binding
-
-If the client and authorization server are using DPoP binding of access tokens and/or authorization codes, then the `auth_session` value SHOULD be protected as well. The authorization server SHOULD associate the `auth_session` value with the DPoP public key. This removes the need for the authorization server to include additional claims in the DPoP proof, while still benefitting from the assurance that the client presenting the proof has control over the DPoP key. To associate the `auth_session` value with the DPoP public key, the authorization server:
-
- - MUST check that the same DPoP public key is being used when the client presents the DPoP proof.
- - MUST verify the DPoP proof to ensure the client controls the corresponding private key whenever the client includes the `auth_session` in an Authorization Challenge Request as described in {{native-auth-request}}.
-
-DPoP binding of the `auth_session` value ensures that the context referenced by the `auth_session` cannot be stolen and reused by another device.
-
-### Auth Session Lifetime
-
-This specification makes no requirements or assumptions on the lifetime of the `auth_session` value. The lifetime and expiration is at the discretion of the authorization server, and the authorization server may choose to invalidate the value for any reason such as scheduled expiration, security events, or revocation events.
-
-Clients MUST NOT make any assumptions or depend on any particular lifetime of the `auth_session` value.
-
-
-## Multiple Applications {#multiple-applications}
-
-When multiple first-party applications are supported by the AS, then it is important to consider a number of additional risks. These risks fall into two main categories: Experience Risk and Technical Risk which are described below.
-
-### User Experience Risk
-
-Any time a user is asked to provide the authentication credentials in user experiences that differ, it has the effect of increasing the likelihood that the user will fall prey to a phishing attack because they are used to entering credentials in different looking experiences. When multiple first-party applications are supported, the implementation MUST ensure the native experience is identical across all the first-party applications.
-
-Another experience risk is user confusion caused by different looking experiences and behaviors. This can increase the likelihood the user will not complete the authentication experience for the first-party application.
-
-### Technical Risk
-
-In addition to the experience risks, multiple implementations in first-party applications increases the risk of an incorrect implementation as well as increasing the attack surface as each implementation may expose its own weaknesses.
-
-### Mitigation
-
-To address these risks, when multiple first-party applications must be supported, and other methods such as {{OpenID.Native-SSO}} are not applicable, it is RECOMMENDED that a client-side SDK be used to ensure the implementation is consistent across the different applications and to ensure the user experience is identical for all first-party apps.
-
-## Single Page Applications {#single-page-apps}
-
-Single Page Applications (SPA) run in a scripting language inside the context of a browser instance. This environment poses several unique challenges compared to native applications, in particular:
-
-* Significant attack vectors due to the possibility of Cross-Site Scripting (XSS) attacks
-* Fewer options to securely attest to the first-partyness of a browser based application
-
-See {{I-D.ietf-oauth-browser-based-apps}} for a detailed discussion of the risks of XSS attacks in browsers.
-
-Additionally, the nature of a Single-Page App means the user is already in a browser context, so the user experience cost of doing a full page redirect or a popup window for the traditional OAuth Authorization Code Flow is much less than the cost of doing so in a native application. The complexity and risk of implementing this specification in a browser likely does not outweigh the user experience benefits that would be gained in that context.
-
-For these reasons, it is NOT RECOMMENDED to use this specification in browser-based applications.
-
+A federated authorization server should consider end-user's privacy and security
+to determine if it should present authorization challenges in federation scenarios.
+For example, it can label **federating** clients as such and avoid serving them
+authorization challenges, as user-serving clients receiving those challenges are
+not first party clients.
 
 # IANA Considerations
 
@@ -1145,7 +754,7 @@ A user may be required to provide an e-mail confirmation code as part of an auth
 
 1. The Client collects an e-mail address from the user.
 2. The Client sends the e-mail address in an Authorization Challenge Request ({{native-auth-request}}) to the Native Authorization Endpoint ({{native-authorization-endpoint}}).
-3. The Authorization Server sends a verification code to the e-mail address and returns an Error Response ({{challenge-error-response}}) including `"error": "insufficient_authorization"`, `"auth_session"` and a custom property indicating that an e-mail verification code must be entered.
+3. The Authorization Server sends a verification code to the e-mail address and returns an Error Response ({{native-authorization-error-response}}) including `"error": "insufficient_authorization"`, `"auth_session"` and a custom property indicating that an e-mail verification code must be entered.
 4. The Client presents a user experience guiding the user to copy the e-mail verification code to the Client. Once the e-mail verification code is entered, the Client sends an Authorization Challenge Request to the Native Authorization Endpoint, including the e-mail verification code as well as the `auth_session` parameter returned in the previous Error Response.
 5. The Authorization Server uses the `auth_session` to maintain the session and verifies the e-mail verification code before issuing an Authorization Code to the Client.
 6. The Client sends the Authorization Code in a Token Request ({{token-request}}) to the Token Endpoint.
@@ -1161,7 +770,7 @@ A user may be required to provide a confirmation code as part of an authenticati
 
 1. The Client collects a mobile phone number from the user.
 1. The Client sends the phone number in an Authorization Challenge Request ({{native-auth-request}}) to the Native Authorization Endpoint ({{native-authorization-endpoint}}).
-1. The Authorization Server sends a confirmation code to the phone number and returns an Error Response ({{challenge-error-response}}) including `"error": "insufficient_authorization"`, `"auth_session"` and a custom property indicating that a confirmation code must be entered.
+1. The Authorization Server sends a confirmation code to the phone number and returns an Error Response ({{native-authorization-error-response}}) including `"error": "insufficient_authorization"`, `"auth_session"` and a custom property indicating that a confirmation code must be entered.
 1. The Client presents a user experience guiding the user to enter the confirmation code. Once the code is entered, the Client sends an Authorization Challenge Request to the Native Authorization Endpoint, including the confirmation code as well as the `auth_session` parameter returned in the previous Error Response.
 1. The Authorization Server uses the `auth_session` to maintain the session context and verifies the code before issuing an Authorization Code to the Client.
 1. The Client sends the Authorization Code in a Token Request ({{token-request}}) to the Token Endpoint.
@@ -1190,7 +799,7 @@ A Client previously obtained an Access and Refresh Token after the user authenti
 1. The Client has a short-lived access token and long-lived refresh token following the completion of an Authorization Code Grant Flow which included user authentication.
 1. When the Client presents the Access token to the Resource Server, the Resource Server determines that the `acr` claim in the Access Token is insufficient given the resource the user wants to access and responds with an `insufficient_user_authentication` error code, along with the desired `acr_values` and desired `max_age`.
 1. The Client sends an Authorization Challenge Request ({{native-auth-request}}) to the Native Authorization Endpoint ({{native-authorization-endpoint}}) including the `auth_session`, `acr_values` and `max_age` parameters.
-1. The Authorization Server verifies the `auth_session` and determines which authentication methods must be satisfied based on the `acr_values`, and responds with an Error Response ({{challenge-error-response}}) including `"error": "insufficient_authorization"` and a custom property indicating that an OTP must be entered.
+1. The Authorization Server verifies the `auth_session` and determines which authentication methods must be satisfied based on the `acr_values`, and responds with an Error Response ({{native-authorization-error-response}}) including `"error": "insufficient_authorization"` and a custom property indicating that an OTP must be entered.
 1. The Client prompts the user for an OTP, which the user obtains and enters.
 1. The Client sends an Authorization Challenge Request to the Native Authorization Endpoint including the `auth_session` and OTP.
 1. The Authorization Server verifies the OTP and returns an Authorization Code.
@@ -1204,7 +813,7 @@ This example describes how to use the mechanisms defined in this draft to create
 
 1. The Client collects a username from the user.
 1. The Client sends an Authorization Challenge Request ({{native-auth-request}}) to the Native Authorization Endpoint ({{native-authorization-endpoint}}) including the username.
-1. The Authorization Server returns an Error Response ({{challenge-error-response}}) including `"error": "insufficient_authorization"`, `"auth_session"`, and a custom property indicating that an e-mail address must be collected.
+1. The Authorization Server returns an Error Response ({{native-authorization-error-response}}) including `"error": "insufficient_authorization"`, `"auth_session"`, and a custom property indicating that an e-mail address must be collected.
 1. The Client collects an e-mail address from the user.
 1. The Client sends the e-mail address as part of a second Authorization Challenge Request to the Native Authorization Endpoint, along with the `auth_session` parameter.
 1. The Authorization Server sends a verification code to the e-mail address and returns an Error Response including `"error": "insufficient_authorization"`, `"auth_session"` and a custom property indicating that an e-mail verification code must be entered.
