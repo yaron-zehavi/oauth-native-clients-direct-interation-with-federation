@@ -21,7 +21,7 @@ venue:
   mail: "oauth@ietf.org"
   arch: "https://mailarchive.ietf.org/arch/browse/oauth/"
   github: "yaron-zehavi/oauth-native-clients-direct-interation-with-federation"
-  latest: "https://yaron-zehavi.github.io/oauth-native-clients-direct-interation-with-federation/draft-ietf-oauth-first-party-apps.html"
+  latest: "https://yaron-zehavi.github.io/oauth-native-clients-direct-interation-with-federation/draft-zehavi-oauth-native-clients-direct-interation-with-federation.html"
 
 author:
  -
