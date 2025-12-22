@@ -532,55 +532,19 @@ not first party clients.
 
 IANA has (TBD) registered the following values in the IANA "OAuth Parameters" registry of {{IANA.oauth-parameters}} established by {{RFC6749}}.
 
-**Parameter name**: `auth_session`
+**Parameter name**: `native_callback_uri`
 
-**Parameter usage location**: token response
+**Parameter usage location**: Native Authorization Endpoint
 
 **Change Controller**: IETF
 
 **Specification Document**: Section 5.4 of this specification
-
-## OAuth Server Metadata Registration
-
-IANA has (TBD) registered the following values in the IANA "OAuth Authorization Server Metadata" registry of {{IANA.oauth-parameters}} established by {{RFC8414}}.
-
-**Metadata Name**: `native_authorization_endpoint`
-
-**Metadata Description**: URL of the authorization server's native authorization endpoint.
-
-**Change Controller**: IESG
-
-**Specification Document**: Section 4.1 of [[ this specification ]]
 
 --- back
 
 # Example User Experiences
 
 This section provides non-normative examples of how this specification may be used to support specific use cases.
-
-## Passkey
-
-A user may log in with a passkey (without a password).
-
-1. The Client collects the username from the user.
-1. The Client sends an Authorization Challenge Request ({{native-auth-request}}) to the Native Authorization Endpoint ({{native-authorization-endpoint}}) including the username.
-1. The Authorization Server verifies the username and returns a challenge
-1. The Client signs the challenge using the platform authenticator, which results in the user being prompted for verification with biometrics or a PIN.
-1. The Client sends the signed challenge, username, and credential ID to the Native Authorization Endpoint ({{native-authorization-endpoint}}).
-1. The Authorization Server verifies the signed challenge and returns an Authorization Code.
-1. The Client requests an Access Token and Refresh Token by issuing a Token Request ({{token-request}}) to the Token Endpoint.
-1. The Authorization Server verifies the Authorization Code and issues the requested tokens.
-
-## Redirect to Authorization Server
-
-A user may be redirected to the Authorization Server to perfrom an account reset.
-
-1. The Client collects username from the user.
-1. The Client sends an Authorization Challenge Request ({{native-auth-request}}) to the Native Authorization Endpoint ({{native-authorization-endpoint}}) including the username.
-1. The Authorization Server verifies the username and determines that the account is locked and returns a Redirect error response.
-1. The Client parses the redirect message, opens a browser and redirects the user to the Authorization Server performing an OAuth 2.0 flow with PKCE.
-1. The user resets their account by performing a multi-step authentication flow with the Authorization Server.
-1. The Authorization Server issues an Authorization Code in a redirect back to the client, which then exchanges it for an access and refresh token.
 
 ## Native client federated and redirected to app
 
@@ -737,187 +701,6 @@ And receives in response an authorization code, which it is the audience of (no 
     }
 
 Client proceeds to exchange code for tokens.
-
-## Passwordless One-Time Password (OTP)
-
-In a passwordless One-Time Password (OTP) scheme, the user is in possession of a one-time password generator. This generator may be a hardware device, or implemented as an app on a mobile phone. The user provides a user identifier and one-time password, which is verified by the Authorization Server before it issues an Authorization Code, which can be exchanged for an Access and Refresh Token.
-
-1. The Client collects username and OTP from user.
-1. The Client sends an Authorization Challenge Request ({{native-auth-request}}) to the Native Authorization Endpoint ({{native-authorization-endpoint}}) including the username and OTP.
-1. The Authorization Server verifies the username and OTP and returns an Authorization Code.
-1. The Client requests an Access Token and Refresh Token by issuing a Token Request ({{token-request}}) to the Token Endpoint.
-1. The Authorization Server verifies the Authorization Code and issues the requested tokens.
-
-## E-Mail Confirmation Code
-
-A user may be required to provide an e-mail confirmation code as part of an authentication ceremony to prove they control an e-mail address. The user provides an e-mail address and is then required to enter a verification code sent to the e-mail address. If the correct verification code is returned to the Authorization Server, it issues Access and Refresh Tokens.
-
-1. The Client collects an e-mail address from the user.
-2. The Client sends the e-mail address in an Authorization Challenge Request ({{native-auth-request}}) to the Native Authorization Endpoint ({{native-authorization-endpoint}}).
-3. The Authorization Server sends a verification code to the e-mail address and returns an Error Response ({{native-authorization-error-response}}) including `"error": "insufficient_authorization"`, `"auth_session"` and a custom property indicating that an e-mail verification code must be entered.
-4. The Client presents a user experience guiding the user to copy the e-mail verification code to the Client. Once the e-mail verification code is entered, the Client sends an Authorization Challenge Request to the Native Authorization Endpoint, including the e-mail verification code as well as the `auth_session` parameter returned in the previous Error Response.
-5. The Authorization Server uses the `auth_session` to maintain the session and verifies the e-mail verification code before issuing an Authorization Code to the Client.
-6. The Client sends the Authorization Code in a Token Request ({{token-request}}) to the Token Endpoint.
-7. The Authorization Server verifies the Authorization Code and issues the Access Token and Refresh Token.
-
-An alternative version of this verification involves the user clicking a link in an email rather than manually entering a verification code. This is typically done for email verification flows rather than inline in a login flow. The protocol-level details remain the same for the alternative flow despite the different user experience. All steps except step 4 above remain the same, but the client presents an alternative user experience for step 4 described below:
-
-* The Client presents a message to the user instructing them to click the link sent to their email address. The user clicks the link in the email, which contains the verification code in the URL. The URL launches the app providing the verification code to the Client. The Client sends the verification code and `auth_session` to the Native Authorization Endpoint.
-
-## Mobile Confirmation Code
-
-A user may be required to provide a confirmation code as part of an authentication ceremony to prove they control a mobile phone number. The user provides a phone number and is then required to enter a confirmation code sent to the phone. If the correct confirmation code is returned to the Authorization Server, it issues Access and Refresh Tokens.
-
-1. The Client collects a mobile phone number from the user.
-1. The Client sends the phone number in an Authorization Challenge Request ({{native-auth-request}}) to the Native Authorization Endpoint ({{native-authorization-endpoint}}).
-1. The Authorization Server sends a confirmation code to the phone number and returns an Error Response ({{native-authorization-error-response}}) including `"error": "insufficient_authorization"`, `"auth_session"` and a custom property indicating that a confirmation code must be entered.
-1. The Client presents a user experience guiding the user to enter the confirmation code. Once the code is entered, the Client sends an Authorization Challenge Request to the Native Authorization Endpoint, including the confirmation code as well as the `auth_session` parameter returned in the previous Error Response.
-1. The Authorization Server uses the `auth_session` to maintain the session context and verifies the code before issuing an Authorization Code to the Client.
-1. The Client sends the Authorization Code in a Token Request ({{token-request}}) to the Token Endpoint.
-1. The Authorization Server verifies the Authorization Code and issues the Access Token and Refresh Token.
-
-## Re-authenticating to an app a week later using OTP
-
-A client may be in possession of an Access and Refresh Token as the result of a previous succesful user authentication. The user returns to the app a week later and accesses the app. The Client presents the Access Token, but receives an error indicating the Access Token is no longer valid. The Client presents a Refresh Token to the Authorization Server to obtain a new Access Token. If the Authorization Server requires user interaction for reasons based on its own policies, it rejects the Refresh Token and the Client re-starts the user authentication flow to obtain new Access and Refresh Tokens.
-
-1. The Client has a short-lived access token and long-lived refresh token following a previous completion of an Authorization Grant Flow which included user authentication.
-1. A week later, the user launches the app and tries to access a protected resource at the Resource Server.
-1. The Resource Server responds with an error code indicating an invalid access token since it has expired.
-1. The Client presents the refresh token to the Authorization Server to obtain a new access token (section 6 {{RFC6749}})
-1. The Authorization Server responds with an error code indicating that an OTP from the user is required, as well as an `auth_session`.
-1. The Client prompts the user to enter an OTP.
-1. The Client sends the OTP and `auth_session` in an Authorization Challenge Request ({{native-auth-request}}) to the Native Authorization Endpoint ({{native-authorization-endpoint}}).
-1. The Authorization Server verifies the `auth_session` and OTP, and returns an Authorization Code.
-1. The Client sends the Authorization Code in a Token Request ({{token-request}}) to the Token Endpoint.
-1. The Authorization Server verifies the Authorization Code and issues the requested tokens.
-1. The Client presents the new Access Token to the Resource Server in order to access the protected resource.
-
-## Step-up Authentication using Confirmation SMS {#step-up-sms-example}
-
-A Client previously obtained an Access and Refresh Token after the user authenticated with an OTP. When the user attempts to access a protected resource, the Resource Server determines that it needs an additional level of authentication and triggers a step-up authentication, indicating the desired level of authentication using `acr_values` and `max_age` as defined in the Step-up Authentication specification. The Client initiates an authorization request with the Authorization Server indicating the `acr_values` and `max_age` parameters. The Authorization Server responds with error messages promptng for additional authentication until the `acr_values` and `max_age` values are satisfied before issuing fresh Access and Refresh Tokens.
-
-1. The Client has a short-lived access token and long-lived refresh token following the completion of an Authorization Code Grant Flow which included user authentication.
-1. When the Client presents the Access token to the Resource Server, the Resource Server determines that the `acr` claim in the Access Token is insufficient given the resource the user wants to access and responds with an `insufficient_user_authentication` error code, along with the desired `acr_values` and desired `max_age`.
-1. The Client sends an Authorization Challenge Request ({{native-auth-request}}) to the Native Authorization Endpoint ({{native-authorization-endpoint}}) including the `auth_session`, `acr_values` and `max_age` parameters.
-1. The Authorization Server verifies the `auth_session` and determines which authentication methods must be satisfied based on the `acr_values`, and responds with an Error Response ({{native-authorization-error-response}}) including `"error": "insufficient_authorization"` and a custom property indicating that an OTP must be entered.
-1. The Client prompts the user for an OTP, which the user obtains and enters.
-1. The Client sends an Authorization Challenge Request to the Native Authorization Endpoint including the `auth_session` and OTP.
-1. The Authorization Server verifies the OTP and returns an Authorization Code.
-1. The Client sends the Authorization Code in a Token Request ({{token-request}}) to the Token Endpoint.
-1. The Authorization Server verifies the Authorization Code and issues an Access Token with the updated `acr` value along with the Refresh Token.
-1. The Client presents the Access Token to the Resources Server, which verifies that the `acr` value meets its requirements before granting access to the protected resource.
-
-## Registration
-
-This example describes how to use the mechanisms defined in this draft to create a complete user registration flow starting with an email address. In this example, it is the Authorization Server's policy to allow these challenges to be sent to email and phone number that were previously unrecognized, and creating the user account on the fly.
-
-1. The Client collects a username from the user.
-1. The Client sends an Authorization Challenge Request ({{native-auth-request}}) to the Native Authorization Endpoint ({{native-authorization-endpoint}}) including the username.
-1. The Authorization Server returns an Error Response ({{native-authorization-error-response}}) including `"error": "insufficient_authorization"`, `"auth_session"`, and a custom property indicating that an e-mail address must be collected.
-1. The Client collects an e-mail address from the user.
-1. The Client sends the e-mail address as part of a second Authorization Challenge Request to the Native Authorization Endpoint, along with the `auth_session` parameter.
-1. The Authorization Server sends a verification code to the e-mail address and returns an Error Response including `"error": "insufficient_authorization"`, `"auth_session"` and a custom property indicating that an e-mail verification code must be entered.
-1. The Client presents a user experience guiding the user to copy the e-mail verification code to the Client. Once the e-mail verification code is entered, the Client sends an Authorization Challenge Request to the Native Authorization Endpoint, including the e-mail verification code as well as the `auth_session` parameter returned in the previous Error Response.
-1. The Authorization Server uses the `auth_session` to maintain the session context, and verifies the e-mail verification code. It determines that it also needs a phone number for account recovery purposes and returns an Error Response including `"error": "insufficient_authorization"`, `"auth_session"` and a custom property indicating that a phone number must be collected.
-1. The Client collects a mobile phone number from the user.
-1. The Client sends the phone number in an Authorization Challenge Request to the Native Authorization Endpoint, along with the `auth_session`.
-1. The Authorization Server uses the `auth_session` parameter to link the previous requests. It sends a confirmation code to the phone number and returns an Error Response including `"error": "insufficient_authorization"`, `"auth_session"` and a custom property indicating that a SMS confirmation code must be entered.
-1. The Client presents a user experience guiding the user to enter the SMS confirmation code. Once the SMS verification code is entered, the Client sends an Authorization Challenge Request to the Native Authorization Endpoint, including the confirmation code as well as the `auth_session` parameter returned in the previous Error Response.
-1. The Authorization Server uses the `auth_session` to maintain the session context, and verifies the SMS verification code before issuing an Authorization Code to the Client.
-1. The Client sends the Authorization Code in a Token Request ({{token-request}}) to the Token Endpoint.
-1. The Authorization Server verifies the Authorization Code and issues the requested tokens.
-
-# Example Implementations
-
-In order to successfully implement this specification, the Authorization Server will need to define its own specific requirements for what values clients are expected to send in the Authorization Challenge Request ({{native-auth-request}}), as well as its own specific error codes in the Authorization Challenge Response ({{native-response}}).
-
-Below is an example of parameters required for a complete implementation that enables the user to log in with a username and OTP.
-
-## Authorization Challenge Request Parameters
-
-In addition to the request parameters defined in {{native-auth-request}}, the authorization server defines the additional parameters below.
-
-"username":
-: REQUIRED for the initial Authorization Challenge Request.
-
-"otp":
-: The OTP collected from the user. REQUIRED when re-trying an Authorization Challenge Request in response to the `otp_required` error defined below.
-
-
-## Authorization Challenge Response Parameters
-
-In addition to the response parameters defined in {{native-response}}, the authorization server defines the additional value for the `error` response below.
-
-"otp_required":
-:     The client should collect an OTP from the user and send the OTP in
-      a second request to the Native Authorization Endpoint. The HTTP
-      response code to use with this error value is `401 Unauthorized`.
-
-## Example Sequence
-
-The client prompts the user to enter their username, and sends the username in an initial Authorization Challenge Request.
-
-    POST /native-authorization HTTP/1.1
-    Host: server.example.com
-    Content-Type: application/x-www-form-urlencoded
-
-    username=alice
-    &scope=photos
-    &client_id=bb16c14c73415
-
-The Authorization Server sends an error response indicating that an OTP is required.
-
-    HTTP/1.1 401 Unauthorized
-    Content-Type: application/json
-    Cache-Control: no-store
-
-    {
-      "error": "otp_required",
-      "auth_session": "ce6772f5e07bc8361572f"
-    }
-
-The client prompts the user for an OTP, and sends a new Authorization Challenge Request.
-
-    POST /native-authorization HTTP/1.1
-    Host: server.example.com
-    Content-Type: application/x-www-form-urlencoded
-
-    auth_session=ce6772f5e07bc8361572f
-    &otp=555121
-
-The Authorization Server validates the `auth_session` to find the expected user, then validates the OTP for that user, and responds with an authorization code.
-
-
-    HTTP/1.1 200 OK
-    Content-Type: application/json
-    Cache-Control: no-store
-
-    {
-      "authorization_code": "uY29tL2F1dGhlbnRpY"
-    }
-
-The client sends the authorization code to the token endpoint.
-
-    POST /token HTTP/1.1
-    Host: server.example.com
-    Content-Type: application/x-www-form-urlencoded
-
-    grant_type=authorization_code
-    &client_id=bb16c14c73415
-    &code=uY29tL2F1dGhlbnRpY
-
-The Authorization Server responds with an access token and refresh token.
-
-    HTTP/1.1 200 OK
-    Content-Type: application/json
-    Cache-Control: no-store
-
-    {
-      "token_type": "Bearer",
-      "expires_in": 3600,
-      "access_token": "d41c0692f1187fd9b326c63d",
-      "refresh_token": "e090366ac1c448b8aed84cbc07"
-    }
 
 ## Usage with Digital Credentials {#digital-credentials}
 
@@ -1176,36 +959,11 @@ First Party Client        AS              Wallet/DC API       Verifier
           ]
         }
 
-# Design Goals
-
-This specification defines a new authorization flow the client can use to obtain an authorization grant. There are two primary reasons for designing the specification this way.
-
-This enables existing OAuth implementations to make fewer modifications to existing code by not needing to extend the token endpoint with new logic. Instead, the new logic can be encapsulated in an entirely new endpoint, the output of which is an authorization code which can be redeemed for an access token at the existing token endpoint.
-
-This also mirrors more closely the existing architecture of the redirect-based authorization code flow. In the authorization code flow, the client first initiates a request by redirecting a browser to the authorization endpoint, at which point the authorization server takes over with its own custom logic to authenticate the user in whatever way appropriate, possibly including interacting with other endpoints for the actual user authentication process. Afterwards, the authorization server redirects the user back to the client application with an authorization code in the query string. This specification mirrors the existing approach by having the client first make a POST request to the Native Authorization Endpoint, at which point the authorization server provides its own custom logic to authenticate the user, eventually returning an authorization code.
-
-An alternative design would be to define new custom grant types for the different authentication factors such as WebAuthn, OTP, etc. The drawback to this design is that conceptually, these authentication methods do not map to an OAuth grant. In other words, the OAuth authorization grant captures the user's intent to authorize access to some data, and that authorization is represented by an authorization code, not by different methods of authenticating the user.
-
-Another alternative option would be to have the Native Authorization Endpoint return an access token upon successful authentication of the user. This was deliberately not chosen, as this adds a new endpoint that tokens would be returned from. In most deployments, the Token Endpoint is the only endpoint that actually issues tokens, and includes all the implmentation logic around token binding, rate limiting, etc. Instead of defining a new endpoint that issues tokens which would have to have similar logic and protections, instead the new endpoint only issues authorization codes, which can be exchanged for tokens at the existing Token Endpoint just like in the redirect-based Authorization Code flow.
-
-These design decisions should enable authorization server implementations to isolate and encapsulate the changes needed to support this specification.
-
-
 # Document History
-
--02
-
-* Updated affiliations and acks
-* Editorial clarifications
-* Added reference to Attestation-Based Client Authentication
-
--01
-
-* Corrected "re-authorization of the user" to "re-authentication of the user"
 
 -00
 
-* Adopted into the OAuth WG, no changes from previous individual draft
+* Document creation
 
 
 # Acknowledgments
