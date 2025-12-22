@@ -112,13 +112,13 @@ informative:
 {{I-D.ietf-oauth-first-party-apps}} defined native OAuth 2.0 **direct interaction**,
 whereby clients call the *Native Authorization Endpoint* as an HTTP REST API,
 obtaining instructions from authorization servers on information to collect from
-users to comply with authentication requirements.
+users to satisfy authorization server's policies and requirements.
 
 While FiPA {{I-D.ietf-oauth-first-party-apps}} focused on a one-to-one relationship between
 client and authorization server, this document acts as its **extension** adding support
 for authorization servers to federate the interaction to a downstream authorization server,
-instruct the usage of a native app for user interaction, and instruct collection of additional
-information from users needed to guide request routing.
+instruct the usage of a native app for user interaction, or instruct collection of additional
+information from users to guide request routing.
 
 --- middle
 
@@ -127,6 +127,7 @@ information from users needed to guide request routing.
 This document, OAuth 2.0 direct interation for native clients using federation,
 extends FiPA {{I-D.ietf-oauth-first-party-apps}} to enable federation based flows,
 while retaining client's direct interaction with end-user.
+
 The client calls the *Native Authorization Endpoint* as an HTTP REST API, and receives
 instructions as error responses, in line with the protocol established by FiPA,
 guiding client to call downstream authorization servers and providing their responses
