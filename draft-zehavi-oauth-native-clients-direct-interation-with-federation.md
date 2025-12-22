@@ -110,15 +110,14 @@ informative:
 --- abstract
 
 {{I-D.ietf-oauth-first-party-apps}} defined native OAuth 2.0 **direct interaction**,
-whereby native clients do not use web redirects to send users to the authorization server
-who afterwards redirects them back to the client. Instead, direct interaction employs the
-*Native Authorization Endpoint* as an HTTP REST API, enabling the authorization server to
-instruct client how to provide information from users, such as responses to authentication
-challenges.
+whereby clients call the *Native Authorization Endpoint* as an HTTP REST API,
+obtaining instructions from authorization servers on information to collect from
+users to comply with authentication requirements.
+
 While FiPA {{I-D.ietf-oauth-first-party-apps}} focused on a one-to-one relationship between
-client and authorization server, this document acts as its **extension** and adds support
-to enable authorization servers to federate the interaction to a downstream authorization server,
-instruct the usage of a native app for user interaction, and instruct collecting additional
+client and authorization server, this document acts as its **extension** adding support
+for authorization servers to federate the interaction to a downstream authorization server,
+instruct the usage of a native app for user interaction, and instruct collection of additional
 information from users needed to guide request routing.
 
 --- middle
@@ -127,12 +126,12 @@ information from users needed to guide request routing.
 
 This document, OAuth 2.0 direct interation for native clients using federation,
 extends FiPA {{I-D.ietf-oauth-first-party-apps}} to enable federation based flows,
-while retaining the client's direct interaction with end-user.
+while retaining client's direct interaction with end-user.
 The client calls the *Native Authorization Endpoint* as an HTTP REST API, and receives
 instructions as error responses, in line with the protocol established by FiPA,
 guiding client to call downstream authorization servers and providing their responses
 to federating authorization servers. This establishes a multi authorization server
-federated flow, driven by the client app.
+federated flow, whose user interactions are driven by the client app.
 
 This document extends FiPA {{I-D.ietf-oauth-first-party-apps}} with new error responses:
 `federate`, `redirect_to_app`, `insufficient_information` and
@@ -143,127 +142,95 @@ It also adds additional response parameters:
 
 And the `native_callback_uri` request parameter.
 
-## Usage and Applicability
-
-This specification MUST only be used by first-party applications, which is when the authorization server and application are controlled by the same entity and the user understands them both as the same entity.
-
-This specification MUST NOT be used by third party applications, and the authorization server SHOULD take measures to prevent use by third party applications. (e.g. only enable this grant for certain client IDs, and take measures to authenticate first-party apps when possible, such as by using app attestations as described in {{I-D.ietf-oauth-attestation-based-client-auth}}.)
-
-Using this specification in scenarios other than those described will lead to unintended security and privacy problems for users and service providers.
-
-This specification is designed to be used by first-party native applications, which includes both mobile and desktop applications.
-
-If you provide multiple apps and expect users to use multiple apps on the same device, there may be better ways of sharing a user's login between the apps other than each app implementing this specification or using an SDK that implements this specification. For example, {{OpenID.Native-SSO}} provides a mechanism for one app to obtain new tokens by exchanging tokens from another app, without any user interaction. See {{multiple-applications}} for more details.
-
-## Limitations of this specification
-
-The scope of this specification is limited to first-party applications. Please review the entirety of {{security-considerations}}, and when more than one first-party application is supported, {{multiple-applications}}.
-
-While this draft provides the framework for a native OAuth experience, each implementation
-will need to define the specific behavior that it expects from OAuth clients interacting with the authorization server. While this lack of clearly defining the details would typically lead to less interoperability, it is acceptable in this case since we intend this specification to be deployed in a tightly coupled environment since it is only applicable to first-party applications.
-
-## User Experience Considerations
-
-It is important to consider the user experience implications of different authentication challenges as well as the device with which the user is attempting to authorize.
-
-For example, requesting a user to enter a password on a limited-input device (e.g. TV) creates a lot of user friction while also exposing the user's password to anyone else in the room. On the other hand, using a challenge method that involves, for example, a fingerprint reader on the TV remote allowing for a FIDO2 passkey authentication would be a good experience.
-
-The Authorization Server SHOULD consider the user's device when presenting authentication challenges and developers SHOULD consider whether the device implementing this specification can provide a good experience for the user. If the combination of user device and authentication challenge methods creates a lot of friction or security risk, consider using a specification like OAuth 2.0 Device Authorization Grant {{RFC8628}}. If selecting OAuth 2.0 Device Authorization Grant {{RFC8628}} which uses a cross-device authorization mechanism, please incorporate the security best practices identified in Cross-Device Flows: Security Best Current Practice {{I-D.ietf-oauth-cross-device-security}}.
-
 # Conventions and Definitions
 
 {::boilerplate bcp14-tagged}
 
-## Terminology
-
-This specification uses the terms "Access Token", "Authorization Code",
-"Authorization Endpoint", "Authorization Server" (AS), "Client", "Client Authentication",
-"Client Identifier", "Client Secret", "Grant Type", "Protected Resource",
-"Redirection URI", "Refresh Token", "Resource Owner", "Resource Server" (RS)
-and "Token Endpoint" defined by {{RFC6749}}.
-
-TODO: Replace RFC6749 references with OAuth 2.1
-
 # Protocol Overview
 
-There are three primary ways this specification extends various parts of an OAuth system.
+There are three primary ways this specification extends FiPA:
 
-## Initial Authorization Request
+* `federate` response: Sends the client to interact with a downstream authorization server.
+* `insufficient_information` response: Instructs the client to collect information from end-user required to decide where to federate to. For example this could be an email address which identifies the trust domain.
+* `redirect_to_app`: Instructs the client to natively invoke an app to interact with end user.
+
+## Example flow: Native client federated and redirected to app
 
 ~~~ ascii-art
                                                 +--------------------+
                                                 |   Authorization    |
-                          (B)Native             |      Servers       |
+                          (B)Native             |      Server 1      |
              +----------+ Authorization Request |+------------------+|
-(A)Client+---|  First-  |---------------------->||+----------------+||
-   Starts|   |  Party   |                       |||    Native      |||
-   Flow  +-->|  Client  |<----------------------||| Authorization  |||
-             |          | (C)Authorization      |||   Endpoint     |||
-             |          |    Error Response     |||                |||
-             |          |         :             |||                |||
-             |          |         :             |||                |||
-             |          | (D)Native             |||                |||
-             |          | Authorization Request |||                |||
-             |          |---------------------->|||                |||
-             |          |                       |||                |||
-             |          |<----------------------||+----------------+||
-             |          | (E) Authorization     |+------------------+|
+(A)User  +---|          |---------------------->||     Native       ||
+   Starts|   |          |                       ||  Authorization   ||
+   Flow  +-->|  Client  |<----------------------||    Endpoint      ||
+             |          | (C)Federate Error     |+------------------+|
+             |          |        Response       +--------------------+
+             |          |         :
+             |          |         :             +--------------------+
+             |          |         :             |   Authorization    |
+             |          | (D)Native             |      Server 2      |
+             |          | Authorization Request |+------------------+|
+             |          |---------------------->||     Native       ||
+             |          |                       ||  Authorization   ||
+             |          |<----------------------||    Endpoint      ||
+             |          | (E) Redirect to       |+------------------+|
+             |          |     App Response      +--------------------+
+             |          |         :
+             |          |         :             +--------------------+
+             |          | (F) Invoke App        |                    |
+             |          |---------------------->|   Native App of    |
+             |          |                       |   Auth Server 2    |
+             |          |<----------------------|                    |
+             |          | (G)Authorization code +--------------------+
+             |          |   For Auth Server 1
+             |          |         :             +--------------------+
+             |          |         :             |   Authorization    |
+             |          | (H)Authorization Code |      Server 1      |
+             |          |    For Auth Server 1  |+------------------+|
+             |          |---------------------->||    Response      ||
+             |          |                       ||       Uri        ||
+             |          |<----------------------||    Endpoint      ||
+             |          | (I) Authorization     |+------------------+|
              |          |     Code Response     |                    |
-             |          |                       |                    |
-             |          |                       |                    |
-             |          |                       |                    |
-             |          | (F) Token             |                    |
-             |          |     Request           |+------------------+|
+             |          |         :             |                    |
+             |          |         :             |                    |
+             |          | (J) Token Request     |+------------------+|
              |          |---------------------->||      Token       ||
              |          |                       ||     Endpoint     ||
              |          |<----------------------||                  ||
-             |          | (G) Access Token      |+------------------+|
-             |          |                       |                    |
-             +----------+                       +--------------------+
+             |          | (K) Access Token      |+------------------+|
+             |          |                       +--------------------+
+             |          |
+             +----------+
 ~~~
-Figure: First-Party Client Authorization Code Request
+Figure: Native client federated, then redirected to app
 
-- (A) The first-party client starts the flow, by presenting the user with a "sign in" button, or collecting information from the user, such as their email address or username.
-- (B) The client initiates the authorization request by making a POST request to the Native Authorization Endpoint, optionally with information collected from the user (e.g. email or username)
-- (C) The authorization server determines whether the information provided to the Native Authorization Endpoint is sufficient to grant authorization, and either responds with an authorization code or responds with an error. In this example, it determines that additional information is needed and responds with an error. The error may contain additional information to guide the Client on what information to collect next. This pattern of collecting information, submitting it to the Native Authorization Endpoint and then receiving an error or authorization code may repeat several times. The authorization server MAY decide to federate to another downstream authorization server's Native Authorization Endpoint.
-- (D) The client gathers additional information (e.g. signed passkey challenge, or one-time code from email) and makes a POST request to the Native Authorization Endpoint.
-- (E) The Native Authorization Endpoint returns an authorization code.
-- (F) The client sends the authorization code received in step (E) to obtain a token from the Token Endpoint.
-- (G) The Authorization Server returns an Access Token from the Token Endpoint.
-
-## Refresh Token Request
-
-When the client uses a refresh token to obtain a new access token, the authorization server MAY respond with an error to indicate that re-authentication of the user is required.
-
-## Resource Request
-
-When making a resource request to a resource server, the resource server MAY respond with an error according to OAuth 2.0 Step-Up Authentication Challenge Protocol {{RFC9470}}, indicating that re-authentication of the user is required.
-
+- (A) The client starts the flow.
+- (B) The client initiates the authorization request by making a POST request to the Native Authorization Endpoint of Authorization Server 1.
+- (C) Authorization Server 1 decides to federate the user to Authorization Server 2. To do so it contacts Authorization Server 2's PAR {{RFC9126}} endpoint, then returns the `federate` error code together with the *federation_uri*, *federation_body*, *response_uri* and *auth_session* response attributes.
+- (D) The client calls Authorization Server 2's Native Authorization Endpoint, as instructed by Authorization Server 1.
+- (E) Authorization Server 2 decides to use a native app, and therefore responds with the `redirect_to_app` error code together with the *deep_link* response attribute.
+- (F) The client invokes the app using the deep_link.
+- (G) The app interacts with user and if satisifed, returns an authorization code, regarded as Authorization Server 2's response to Authorization Server 1's federation to it.
+- (H) The client provides the authorization code to Authorization Server 1.
+- (I) Authorization Server 1 returns an authorization code.
+- (J) The client sends the authorization code received in step (I) to obtain a token from the Token Endpoint.
+- (K) Authorization Server 1 returns an Access Token from the Token Endpoint.
 
 # Protocol Endpoints
 
 ## Native Authorization Endpoint {#native-authorization-endpoint}
 
-The native authorization endpoint is a new endpoint defined by this specification which the first-party application uses to obtain an authorization code.
+The native authorization endpoint defined by FiPA {{I-D.ietf-oauth-first-party-apps}} is used by this document.
 
-The native authorization endpoint is an HTTP API at the authorization server that accepts HTTP POST requests with parameters in the HTTP request message body using the `application/x-www-form-urlencoded` format. This format has a character encoding of UTF-8, as described in Appendix B of {{RFC6749}}. The native authorization endpoint URL MUST use the "https" scheme.
-
-If the authorization server requires client authentication for this client on the Token Endpoint, then the authorization server MUST also require client authentication for this client on the Native Authorization Endpoint, or require the client to use PAR {{RFC9126}}, with appropriate client authentication on the pushed authorization request endpoint. When using PAR with client authentication, the request_uri provided to the Native Authorization Endpoint attests that client authentication took place. When federating to downstream authorization servers, the usage of PAR {{RFC9126}} with client authentication is REQUIRED, as the native client calling the Native Authorization Endpoint of a federated authorization server is not *its* OAuth client and therefore has no other means of authenticating. See {{client-authentication}} for more details.
-
-Authorization servers supporting this specification SHOULD include the URL of their native authorization endpoint in their authorization server metadata document {{RFC8414}} using the `native_authorization_endpoint` parameter as defined in {{authorization-server-metadata}}.
-
-The native authorization endpoint accepts the authorization request parameters defined in {{RFC6749}} for the authorization endpoint as well as all applicable extensions defined for the authorization endpoint. Some examples of such extensions include Proof Key for Code Exchange (PKCE) {{RFC7636}}, Resource Indicators {{RFC8707}}, and OpenID Connect {{OpenID}}. It is important to note that some extension parameters have meaning in a web context but don't have meaning in a native mechanism (e.g. `response_mode=query`). It is out of scope as to what the AS does in the case that an extension defines a parameter that has no meaning in this use case.
-
-The native authorization endpoint also accepts the *native_callback_uri* parameter.
+This document adds the *native_callback_uri* parameter to the native authorization endpoint, to support
+cross-app native user navigation.
 
 Before authorization servers instruct a client to federate to a downstream authorization server, they MUST ensure it offers a *native_authorization_endpoint*, otherwise return the error native_authorization_federate_unsupported*.
 
-The client initiates the authorization flow with or without information collected from the user (e.g. a signed passkey challenge or MFA code).
-
-The native authorization endpoint response is either an authorization code or an error code, and may also contain an `auth_session` which the client uses on subsequent requests.
-
-Further communication between the client and authorization server MAY happen at the Native Authorization Endpoint or any other proprietary endpoints at the authorization server.
-
+When federating to downstream authorization servers, the usage of PAR {{RFC9126}} with client authentication is REQUIRED, as the native client calling the Native Authorization Endpoint of a federated authorization server is not *its* OAuth client and therefore has no other means of authenticating. 
+When using PAR with client authentication, the request_uri provided to the Native Authorization Endpoint attests that client authentication took place.
 
 ## Token endpoint
 
@@ -878,13 +845,6 @@ Because of these risks, the authorization server MAY decide to require that the 
 The native authorization endpoint is capable of directly receiving user credentials and returning authorization codes. This exposes a new vector to perform credential stuffing attacks, if additional measures are not taken to ensure the authenticity of the application.
 
 An authorization server may already have a combination of built-in or 3rd party security tools in place to monitor and reduce this risk in browser-based authentication flows. Implementors SHOULD consider similar security measures to reduce this risk in the native authorization endpoint. Additionally, the attestation APIs SHOULD be used when possible to assert a level of confidence to the authorization server that the request is originating from an application owned by the same party.
-
-## Client Authentication {#client-authentication}
-
-Typically, mobile and desktop applications are considered "public clients" in OAuth, since they cannot be shipped with a statically configured set of client credentials {{RFC8252}}. Because of this, client impersonation should be a concern of anyone deploying this pattern. Without client authentication, a malicious user or attacker can mimick the requests the application makes to the authorization server, pretending to be the legitimate client.
-
-Implementers SHOULD consider additional measures to limit the risk of client impersonation, such as using attestation APIs available from the operating system.
-
 
 ## Sender-Constrained Tokens
 
