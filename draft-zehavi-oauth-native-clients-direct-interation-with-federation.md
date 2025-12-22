@@ -333,7 +333,7 @@ However, when **federated** authorization server returns the following error cod
 *federate*, *insufficient_authorization*, *insufficient_information*, *redirect_to_app*,
 *redirect_to_web*, client MUST handle these errors according to this specification.
 
-Example client calling receiving an authorization code response {{authorization-code-response}} from the federated
+Example client calling receiving an authorization code response from the federated
 authorization server:
 
     HTTP/1.1 200 OK
@@ -876,8 +876,8 @@ The verifier is displayed here as a separate instance, but can also be part of t
 
 23. Once the presentation is done, the verifier returns the result to the authorization server, which then evaluates the verification result and returns either a code or an error as per {{native-response}}, breaking the loop. Here we assume the happy path. Continue with step 24.
 24. The authorization server returns an authorization code to the client as per {{native-response}}.
-25. The client redeems the code for an access token as per {{token-request}}.
-26. The authorization server responds to the token request as per {{token-request}}.
+25. The client redeems the code for an access token.
+26. The authorization server responds to the token request.
 
 ### RAR & Transaction Data
 
@@ -917,8 +917,8 @@ First Party Client        AS              Wallet/DC API       Verifier
 6. The wallet creates a vp_token including the requested transaction data and sends it to the verifier.
 7. The verifier verifies the vp_token and eventually the authorization server learns about the result. How the authorization server learns about the result is omitted for simplicity. See Usage with Digital Credentials {{digital-credentials}} for details. The authorization server then evaluates the result, especially the transaction data.
 8. The authorization server returns an authorization code to the client as per {{native-response}}.
-9. The client redeems the code for an access token as per {{token-request}}.
-10. The authorization server responds to the token request as per {{token-request}}. It also includes the authorization_details.
+9. The client redeems the code for an access token.
+10. The authorization server responds to the token request. It also includes the authorization_details.
 
         HTTP/1.1 200 OK
         Content-Type: application/json
