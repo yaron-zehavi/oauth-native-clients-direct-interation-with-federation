@@ -229,7 +229,7 @@ cross-app native user navigation.
 
 Before authorization servers instruct a client to federate to a downstream authorization server, they MUST ensure it offers a *native_authorization_endpoint*, otherwise return the error native_authorization_federate_unsupported*.
 
-When federating to downstream authorization servers, the usage of PAR {{RFC9126}} with client authentication is REQUIRED, as the native client calling the Native Authorization Endpoint of a federated authorization server is not *its* OAuth client and therefore has no other means of authenticating. 
+When federating to downstream authorization servers, the usage of PAR {{RFC9126}} with client authentication is REQUIRED, as the native client calling the Native Authorization Endpoint of a federated authorization server is not *its* OAuth client and therefore has no other means of authenticating.
 When using PAR with client authentication, the request_uri provided to the Native Authorization Endpoint attests that client authentication took place.
 
 ## Token endpoint
