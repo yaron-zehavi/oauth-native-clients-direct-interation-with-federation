@@ -21,17 +21,17 @@ venue:
   mail: "oauth@ietf.org"
   arch: "https://mailarchive.ietf.org/arch/browse/oauth/"
   github: "yaron-zehavi/oauth-native-clients-direct-interation-with-federation"
-  latest: "https://yaron-zehavi.github.io/oauth-native-clients-direct-interation-with-federation/draft-ietf-oauth-first-party-apps.html"
+  latest: "https://yaron-zehavi.github.io/oauth-native-clients-direct-interation-with-federation/draft-zehavi-oauth-native-clients-direct-interation-with-federation.html"
 
 author:
- -
-    fullname: Aaron Parecki
-    organization: Okta
-    email: aaron@parecki.com
  -
     fullname: Yaron Zehavi
     organization: Raiffeisen Bank International
     email: yaron.zehavi@rbinternational.com
+ -
+    fullname: Aaron Parecki
+    organization: Okta
+    email: aaron@parecki.com
 
 normative:
   RFC6749:
@@ -48,6 +48,7 @@ normative:
   RFC9396:
   RFC9449:
   RFC9470:
+  I-D.ietf-oauth-first-party-apps:
   I-D.ietf-oauth-cross-device-security:
   OpenID.Native-SSO:
     title: OpenID Connect Native SSO for Mobile Apps
@@ -108,44 +109,39 @@ informative:
 
 --- abstract
 
-{{RFC8252}} defined OAuth 2.0 **for** Native Apps, through external user-agents,
-primarily the user's browser. This document addresses OAuth 2.0 **by** Native Apps,
-and defines the Native Authorization Endpoint, which supports a first-party client that
-wants to control the process of obtaining authorization from the user using a native experience.
-
-In many cases, this can provide an entirely browserless OAuth 2.0 experience suited for native
-applications, only delegating to the browser in unexpected, high risk, or error conditions.
-
+{{I-D.ietf-oauth-first-party-apps}} defined native OAuth 2.0 **direct interaction**,
+whereby native clients do not use web redirects to send users to the authorization server
+who afterwards redirects them back to the client. Instead, direct interaction employs the
+*Native Authorization Endpoint* as an HTTP REST API, enabling the authorization server to
+instruct client how to provide information from users, such as responses to authentication
+challenges.
+While FiPA {{I-D.ietf-oauth-first-party-apps}} focused on a one-to-one relationship between
+client and authorization server, this document acts as its **extension** and adds support
+to enable authorization servers to federate the interaction to a downstream authorization server,
+instruct the usage of a native app for user interaction, and instruct collecting additional
+information from users needed to guide request routing.
 
 --- middle
 
 # Introduction
 
-This document, OAuth for First-Party Apps (FiPA),
-extends the OAuth 2.0 Authorization Framework {{RFC6749}} with
-a new endpoint, `native_authorization_endpoint`, to support first-party
-applications that want to control the process of obtaining authorization
-from the user using a native experience.
+This document, OAuth 2.0 direct interation for native clients using federation,
+extends FiPA {{I-D.ietf-oauth-first-party-apps}} to enable federation based flows,
+while retaining the client's direct interaction with end-user.
+The client calls the *Native Authorization Endpoint* as an HTTP REST API, and receives
+instructions as error responses, in line with the protocol established by FiPA,
+guiding client to call downstream authorization servers and providing their responses
+to federating authorization servers. This establishes a multi authorization server
+federated flow, driven by the client app.
 
-The client collects any initial information from the user and POSTs that information
-as well as information about the client's request to the Native Authorization Endpoint,
-and receives either an authorization code or an error code in response. The error code
-may indicate that the client can continue to prompt the user for more information,
-should federate the request to a downstream Authorization Server by invoking their
-Native Authorization Endpoint, or can indicate that the client needs to launch
-another app or a browser to have the user complete the flow in a browser.
+This document extends FiPA {{I-D.ietf-oauth-first-party-apps}} with new error responses:
+`federate`, `redirect_to_app`, `insufficient_information` and
+`native_authorization_federate_unsupported`.
 
-The Native Authorization Endpoint is used to initiate the OAuth flow in place of redirecting
-or launching a browser to the authorization endpoint.
+It also adds additional response parameters:
+`federation_uri`, `federation_body`, `response_uri`, `deep_link`.
 
-While a fully-delegated approach using the redirect-based Authorization Code grant is generally
-preferred, this draft provides a mechanism for the client to directly interact
-with the user. This requires a high degree of trust between the authorization server
-and the client, as there typically is for first-party applications.
-It should only be considered when there are usability
-concerns with a redirect-based approach, such as for native mobile or desktop applications.
-
-This draft also extends the token response (typically for use in response to a refresh token request) and resource server response to allow the authorization server or resource server to indicate that the client should re-request authorization from the user. This can include requesting step-up authentication by including parameters defined in {{RFC9470}} as well.
+And the `native_callback_uri` request parameter.
 
 ## Usage and Applicability
 
