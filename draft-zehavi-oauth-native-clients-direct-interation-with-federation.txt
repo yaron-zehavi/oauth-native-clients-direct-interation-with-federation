@@ -18,7 +18,7 @@ Abstract
    [I-D.ietf-oauth-first-party-apps] defined a native OAuth 2.0 *direct
    interaction*, whereby clients call authorization server's _Native
    Authorization Endpoint_ as an HTTP REST API, whose response instructs
-   client on required information to collect from end-user to satisfy
+   client what information to collect from end-user to satisfy
    authorization server's policies and requirements.
 
    While FiPA [I-D.ietf-oauth-first-party-apps] focused on a one-to-one
@@ -85,7 +85,8 @@ Table of Contents
    1.  Introduction
    2.  Conventions and Definitions
    3.  Protocol Overview
-     3.1.  Example flow: Native client federated and redirected to app
+     3.1.  Representative flow: Native client federated and redirected
+           to app
    4.  Protocol Endpoints
      4.1.  Native Authorization Endpoint
      4.2.  Native Authorization Request
@@ -156,7 +157,7 @@ Table of Contents
    *  redirect_to_app: Instructs the client to natively invoke an app to
       interact with end user.
 
-3.1.  Example flow: Native client federated and redirected to app
+3.1.  Representative flow: Native client federated and redirected to app
 
                                                   +--------------------+
                                                   |   Authorization    |
