@@ -5,8 +5,8 @@
 Web Authorization Protocol                                     Y. Zehavi
 Internet-Draft                             Raiffeisen Bank International
 Intended status: Standards Track                              A. Parecki
-Expires: 25 June 2026                                               Okta
-                                                        22 December 2025
+Expires: 26 June 2026                                               Okta
+                                                        23 December 2025
 
 
     OAuth 2.0 direct interation for native clients using federation
@@ -14,6 +14,7 @@ draft-zehavi-oauth-native-clients-direct-interation-with-federation-latest
 
 Abstract
 
+   OAuth 2.0 for First-Party Applications (FiPA)
    [I-D.ietf-oauth-first-party-apps] defined native OAuth 2.0 *direct
    interaction*, whereby clients call the _Native Authorization
    Endpoint_ as an HTTP REST API, obtaining instructions from
@@ -63,7 +64,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 June 2026.
+   This Internet-Draft will expire on 26 June 2026.
 
 Copyright Notice
 
@@ -95,9 +96,7 @@ Table of Contents
            servers
    6.  IANA Considerations
      6.1.  OAuth Parameters Registration
-   7.  References
-     7.1.  Normative References
-     7.2.  Informative References
+   7.  Normative References
    Appendix A.  Example User Experiences
      A.1.  Native client federated and redirected to app
        A.1.1.  Diagram
@@ -624,16 +623,7 @@ Table of Contents
 
    *Specification Document*: Section 5.4 of this specification
 
-7.  References
-
-7.1.  Normative References
-
-   [I-D.ietf-oauth-cross-device-security]
-              Kasselman, P., Fett, D., and F. Skokan, "Cross-Device
-              Flows: Security Best Current Practice", Work in Progress,
-              Internet-Draft, draft-ietf-oauth-cross-device-security-13,
-              2 December 2025, <https://datatracker.ietf.org/doc/html/
-              draft-ietf-oauth-cross-device-security-13>.
+7.  Normative References
 
    [I-D.ietf-oauth-first-party-apps]
               Parecki, A., Fletcher, G., and P. Kasselman, "OAuth 2.0
@@ -642,26 +632,15 @@ Table of Contents
               2025, <https://datatracker.ietf.org/doc/html/draft-ietf-
               oauth-first-party-apps-02>.
 
-   [IANA.JWT] "*** BROKEN REFERENCE ***".
-
    [IANA.oauth-parameters]
               IANA, "OAuth Parameters",
               <https://www.iana.org/assignments/oauth-parameters>.
-
-   [OpenID]   Sakimura, N., Bradley, J., Jones, M., de Medeiros, B., and
-              C. Mortimore, "OpenID Connect Core 1.0", November 2014,
-              <https://openid.net/specs/openid-connect-core-1_0.html>.
 
    [OpenID.Federation]
               Hedberg, Ed, R., Jones, M. B., Solberg, A. A., Bradley,
               J., De Marco, G., and V. Dzhuvinov, "OpenID Federation
               1.0", March 2025,
               <https://openid.net/specs/openid-federation-1_0.html>.
-
-   [OpenID.Native-SSO]
-              Fletcher, G., "OpenID Connect Native SSO for Mobile Apps",
-              November 2022, <https://openid.net/specs/openid-connect-
-              native-sso-1_0.html>.
 
    [OpenID4VP]
               Terbu, O., Lodderstedt, T., Yasuda, K., Fett, D., and J.
@@ -678,50 +657,9 @@ Table of Contents
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
               <https://www.rfc-editor.org/rfc/rfc6749>.
 
-   [RFC7159]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
-              Interchange Format", RFC 7159, DOI 10.17487/RFC7159, March
-              2014, <https://www.rfc-editor.org/rfc/rfc7159>.
-
-   [RFC7515]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web
-              Signature (JWS)", RFC 7515, DOI 10.17487/RFC7515, May
-              2015, <https://www.rfc-editor.org/rfc/rfc7515>.
-
-   [RFC7519]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web Token
-              (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
-              <https://www.rfc-editor.org/rfc/rfc7519>.
-
-   [RFC7591]  Richer, J., Ed., Jones, M., Bradley, J., Machulak, M., and
-              P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",
-              RFC 7591, DOI 10.17487/RFC7591, July 2015,
-              <https://www.rfc-editor.org/rfc/rfc7591>.
-
-   [RFC7636]  Sakimura, N., Ed., Bradley, J., and N. Agarwal, "Proof Key
-              for Code Exchange by OAuth Public Clients", RFC 7636,
-              DOI 10.17487/RFC7636, September 2015,
-              <https://www.rfc-editor.org/rfc/rfc7636>.
-
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
-
-   [RFC8259]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
-              Interchange Format", STD 90, RFC 8259,
-              DOI 10.17487/RFC8259, December 2017,
-              <https://www.rfc-editor.org/rfc/rfc8259>.
-
-   [RFC8414]  Jones, M., Sakimura, N., and J. Bradley, "OAuth 2.0
-              Authorization Server Metadata", RFC 8414,
-              DOI 10.17487/RFC8414, June 2018,
-              <https://www.rfc-editor.org/rfc/rfc8414>.
-
-   [RFC8628]  Denniss, W., Bradley, J., Jones, M., and H. Tschofenig,
-              "OAuth 2.0 Device Authorization Grant", RFC 8628,
-              DOI 10.17487/RFC8628, August 2019,
-              <https://www.rfc-editor.org/rfc/rfc8628>.
-
-   [RFC8707]  Campbell, B., Bradley, J., and H. Tschofenig, "Resource
-              Indicators for OAuth 2.0", RFC 8707, DOI 10.17487/RFC8707,
-              February 2020, <https://www.rfc-editor.org/rfc/rfc8707>.
 
    [RFC9126]  Lodderstedt, T., Campbell, B., Sakimura, N., Tonge, D.,
               and F. Skokan, "OAuth 2.0 Pushed Authorization Requests",
@@ -733,49 +671,9 @@ Table of Contents
               DOI 10.17487/RFC9396, May 2023,
               <https://www.rfc-editor.org/rfc/rfc9396>.
 
-   [RFC9449]  Fett, D., Campbell, B., Bradley, J., Lodderstedt, T.,
-              Jones, M., and D. Waite, "OAuth 2.0 Demonstrating Proof of
-              Possession (DPoP)", RFC 9449, DOI 10.17487/RFC9449,
-              September 2023, <https://www.rfc-editor.org/rfc/rfc9449>.
-
-   [RFC9470]  Bertocci, V. and B. Campbell, "OAuth 2.0 Step Up
-              Authentication Challenge Protocol", RFC 9470,
-              DOI 10.17487/RFC9470, September 2023,
-              <https://www.rfc-editor.org/rfc/rfc9470>.
-
-   [SHS]      Technology, N. I. of S. and., ""Secure Hash Standard
-              (SHS)", FIPS PUB 180-4, DOI 10.6028/NIST.FIPS.180-4",
-              August 2015, <http://dx.doi.org/10.6028/NIST.FIPS.180-4>.
-
    [USASCII]  Institute, A. N. S., "Coded Character Set -- 7-bit
               American Standard Code for Information Interchange, ANSI
               X3.4", 1986.
-
-7.2.  Informative References
-
-   [I-D.ietf-oauth-attestation-based-client-auth]
-              Looker, T., Bastian, P., and C. Bormann, "OAuth 2.0
-              Attestation-Based Client Authentication", Work in
-              Progress, Internet-Draft, draft-ietf-oauth-attestation-
-              based-client-auth-07, 15 September 2025,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
-              attestation-based-client-auth-07>.
-
-   [I-D.ietf-oauth-browser-based-apps]
-              Parecki, A., De Ryck, P., and D. Waite, "OAuth 2.0 for
-              Browser-Based Applications", Work in Progress, Internet-
-              Draft, draft-ietf-oauth-browser-based-apps-26, 3 December
-              2025, <https://datatracker.ietf.org/doc/html/draft-ietf-
-              oauth-browser-based-apps-26>.
-
-   [RFC6750]  Jones, M. and D. Hardt, "The OAuth 2.0 Authorization
-              Framework: Bearer Token Usage", RFC 6750,
-              DOI 10.17487/RFC6750, October 2012,
-              <https://www.rfc-editor.org/rfc/rfc6750>.
-
-   [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
-              BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
-              <https://www.rfc-editor.org/rfc/rfc8252>.
 
 Appendix A.  Example User Experiences
 
