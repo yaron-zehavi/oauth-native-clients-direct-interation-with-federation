@@ -60,7 +60,7 @@ normative:
 
 OAuth 2.0 for First-Party Applications (FiPA) {{I-D.ietf-oauth-first-party-apps}} defined a native
 OAuth 2.0 **direct interaction**, whereby clients call authorization server's *Native Authorization
-Endpoint* as an HTTP REST API, whose response instructs client on required information
+Endpoint* as an HTTP REST API, whose response instructs client what information
 to collect from end-user to satisfy authorization server's policies and requirements.
 
 While FiPA {{I-D.ietf-oauth-first-party-apps}} focused on a one-to-one relationship between
@@ -103,7 +103,7 @@ There are three primary ways this specification extends FiPA:
 * `insufficient_information` response: Instructs the client to collect information from end-user required to decide where to federate to. For example this could be an email address which identifies the trust domain.
 * `redirect_to_app`: Instructs the client to natively invoke an app to interact with end user.
 
-## Example flow: Native client federated and redirected to app
+## Representative flow: Native client federated and redirected to app
 
 ~~~ ascii-art
                                                 +--------------------+
