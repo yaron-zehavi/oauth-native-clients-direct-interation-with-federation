@@ -90,7 +90,9 @@ Table of Contents
      4.1.  Native Authorization Endpoint
      4.2.  Native Authorization Request
      4.3.  Native Authorization Response
-       4.3.1.  Error Response
+       4.3.1.  Federating Response
+       4.3.2.  Redirect to app response
+       4.3.3.  Additional Information Required Response
    5.  Security Considerations
      5.1.  Non First-Party applications of federated authorization
            servers
@@ -282,10 +284,8 @@ Table of Contents
 
 4.3.  Native Authorization Response
 
-4.3.1.  Error Response
-
-   This document extends FiPA [I-D.ietf-oauth-first-party-apps] by
-   adding the following error codes:
+   This document extends FiPA's [I-D.ietf-oauth-first-party-apps] error
+   response, by adding the following error codes:
 
    "error":  REQUIRED.  A single ASCII [USASCII] error code from the
       following:
@@ -293,17 +293,17 @@ Table of Contents
       "insufficient_information":  the Authorization Server requires
          additional user input, other than an authentication challenge,
          to determine the target authorization server to federate to.
-         See Section 4.3.1.3 for details.
+         See Section 4.3.3 for details.
 
       "federate":  The Authorization Server wishes to federate to
          another authorization server, which it is a client of.  This
          response MUST include the _federation_uri_ response parameter.
-         See Section 4.3.1.1 for details.
+         See Section 4.3.1 for details.
 
       "redirect_to_app":  The Authorization Server wishes to fulfill the
          user interaction using another native app.  This response MUST
          include the _federation_uri_ response parameter.  See
-         Section 4.3.1.2 for details.
+         Section 4.3.2 for details.
 
       "native_authorization_federate_unsupported":  The authorization
          server intended to federate to a downstream authorization
@@ -327,7 +327,7 @@ Table of Contents
       authorization server which shall receive the response from the
       federated authorization server.
 
-4.3.1.1.  Federating Response
+4.3.1.  Federating Response
 
    If the authorization server decides to federate to another
    authorization server, it responds with error code _federate_ and MUST
@@ -397,7 +397,7 @@ Table of Contents
    authorization_code=uY29tL2F1dGhlbnRpY
    &auth_session=ce6772f5e07bc8361572f
 
-4.3.1.2.  Redirect to app response
+4.3.2.  Redirect to app response
 
    If the authorization server decides to use a native app to interact
    with end user, it responds with error code _redirect_to_app_ and MUST
@@ -451,7 +451,7 @@ Table of Contents
    regard the invocation as a response *from* the authorization server
    which redirected the client to the app.  In other words, this
    response's audience is not the authorization server which redirected
-   the client to the app.  See Section 4.3.1.1 for details.
+   the client to the app.  See Section 4.3.1 for details.
 
    Example URI used to invoke of client app on its claimed
    native_callback_uri:
@@ -469,7 +469,7 @@ Table of Contents
    authorization_code=uY29tL2F1dGhlbnRpY
    &auth_session=ce6772f5e07bc8361572f
 
-4.3.1.3.  Additional Information Required Response
+4.3.3.  Additional Information Required Response
 
    If additional user input is required, for example to determine where
    to federate to, the response body shall contain the following
@@ -783,7 +783,7 @@ A.1.2.  Client makes initial request and receives "federate" error
          urn:ietf:params:oauth:request_uri:R3p_hzwsR7outNQSKfoX"
    }
 
-   See Section 4.3.1.1 for more details.
+   See Section 4.3.1 for more details.
 
 A.1.3.  Client calls federated authorization server and is redirected to
         app
@@ -813,7 +813,7 @@ A.1.3.  Client calls federated authorization server and is redirected to
    }
 
    Client locates an app claiming the obtained deep_link and invokes it.
-   See Section 4.3.1.2 for more details.  The invoked app handles the
+   See Section 4.3.2 for more details.  The invoked app handles the
    native authorization request and then natively invokes
    native_callback_uri:
 
