@@ -68,16 +68,16 @@ normative:
 
 --- abstract
 
-OAuth 2.0 for First-Party Applications (FiPA) {{I-D.ietf-oauth-first-party-apps}} defined native
-OAuth 2.0 **direct interaction**, whereby clients call the *Native Authorization Endpoint*
-as an HTTP REST API, obtaining instructions from authorization servers on information to
-collect from users to satisfy authorization server's policies and requirements.
+OAuth 2.0 for First-Party Applications (FiPA) {{I-D.ietf-oauth-first-party-apps}} defined a native
+OAuth 2.0 **direct interaction**, whereby clients call authorization server's *Native Authorization
+Endpoint* as an HTTP REST API, whose response instructs client on required information
+to collect from end-user to satisfy authorization server's policies and requirements.
 
 While FiPA {{I-D.ietf-oauth-first-party-apps}} focused on a one-to-one relationship between
-client and authorization server, this document acts as its **extension** adding support
+client and authorization server, this document is an **extension profile** adding support
 for authorization servers to federate the interaction to a downstream authorization server,
-instruct the usage of a native app for user interaction, or instruct collection of additional
-information from users to guide request routing.
+instruct collection of additional information from users to guide request routing or instruct
+the usage of a native app for user interaction.
 
 --- middle
 
@@ -88,10 +88,10 @@ extends FiPA {{I-D.ietf-oauth-first-party-apps}} to enable federation based flow
 while retaining client's direct interaction with end-user.
 
 The client calls the *Native Authorization Endpoint* as an HTTP REST API, and receives
-instructions according to the protocol established by FiPA,
-guiding client to call downstream authorization servers and providing their responses
-to federating authorization servers. This establishes a multi authorization server
-federated flow, whose user interactions are driven by the client app.
+instructions via the protocol established by FiPA, guiding client to call downstream
+authorization servers and once they respond, provide their responses, to federating
+authorization servers. This establishes a multi authorization server federated flow,
+whose user interactions are driven by the client app.
 
 This document extends FiPA {{I-D.ietf-oauth-first-party-apps}} with new error responses:
 `federate`, `redirect_to_app`, `insufficient_information` and
