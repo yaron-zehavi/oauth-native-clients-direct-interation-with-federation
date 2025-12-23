@@ -120,10 +120,9 @@ Table of Contents
 
    The client calls the _Native Authorization Endpoint_ as an HTTP REST
    API, and receives instructions via the protocol established by FiPA,
-   guiding client to call downstream authorization servers and once they
-   respond, provide their responses, to federating authorization
-   servers.  This establishes a multi authorization server federated
-   flow, whose user interactions are driven by the client app.
+   guiding client to interact with downstream authorization servers.
+   This establishes a multi authorization server federated flow, whose
+   user interactions are driven by the client app.
 
    This document extends FiPA [I-D.ietf-oauth-first-party-apps] with new
    error responses: federate, redirect_to_app, insufficient_information

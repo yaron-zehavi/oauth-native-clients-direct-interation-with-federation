@@ -1271,10 +1271,9 @@ the usage of a native app for user interaction.<a href="#section-abstract-2" cla
 extends FiPA <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> to enable federation based flows,
 while retaining client's direct interaction with end-user.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">The client calls the <em>Native Authorization Endpoint</em> as an HTTP REST API, and receives
-instructions via the protocol established by FiPA, guiding client to call downstream
-authorization servers and once they respond, provide their responses, to federating
-authorization servers. This establishes a multi authorization server federated flow,
-whose user interactions are driven by the client app.<a href="#section-1-2" class="pilcrow">¶</a></p>
+instructions via the protocol established by FiPA, guiding client to interact with
+downstream authorization servers. This establishes a multi authorization server
+federated flow, whose user interactions are driven by the client app.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">This document extends FiPA <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> with new error responses:
 <code>federate</code>, <code>redirect_to_app</code>, <code>insufficient_information</code> and
 <code>native_authorization_federate_unsupported</code>.<a href="#section-1-3" class="pilcrow">¶</a></p>
