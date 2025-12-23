@@ -35,37 +35,9 @@ author:
 
 normative:
   RFC6749:
-  RFC7159:
-  RFC7515:
-  RFC7519:
-  RFC7591:
-  RFC7636:
-  RFC8259:
-  RFC8414:
-  RFC8628:
-  RFC8707:
   RFC9126:
   RFC9396:
-  RFC9449:
-  RFC9470:
   I-D.ietf-oauth-first-party-apps:
-  I-D.ietf-oauth-cross-device-security:
-  OpenID.Native-SSO:
-    title: OpenID Connect Native SSO for Mobile Apps
-    target: https://openid.net/specs/openid-connect-native-sso-1_0.html
-    author:
-      - ins: G. Fletcher
-    date: November 2022
-  OpenID:
-    title: OpenID Connect Core 1.0
-    target: https://openid.net/specs/openid-connect-core-1_0.html
-    date: November 8, 2014
-    author:
-      - ins: N. Sakimura
-      - ins: J. Bradley
-      - ins: M. Jones
-      - ins: B. de Medeiros
-      - ins: C. Mortimore
   OpenID.Federation:
     title: OpenID Federation 1.0
     target: https://openid.net/specs/openid-federation-1_0.html
@@ -88,31 +60,18 @@ normative:
       - ins: D. Fett
       - ins: J. Heenan
   IANA.oauth-parameters:
-  IANA.JWT:
   USASCII:
     title: "Coded Character Set -- 7-bit American Standard Code for Information Interchange, ANSI X3.4"
     author:
       name: "American National Standards Institute"
     date: 1986
-  SHS:
-    title: "\"Secure Hash Standard (SHS)\", FIPS PUB 180-4, DOI 10.6028/NIST.FIPS.180-4"
-    author:
-      name: "National Institute of Standards and Technology"
-    date: August 2015
-    target: http://dx.doi.org/10.6028/NIST.FIPS.180-4
-
-informative:
-  RFC6750:
-  RFC8252:
-  I-D.ietf-oauth-browser-based-apps:
-  I-D.ietf-oauth-attestation-based-client-auth:
 
 --- abstract
 
-{{I-D.ietf-oauth-first-party-apps}} defined native OAuth 2.0 **direct interaction**,
-whereby clients call the *Native Authorization Endpoint* as an HTTP REST API,
-obtaining instructions from authorization servers on information to collect from
-users to satisfy authorization server's policies and requirements.
+OAuth 2.0 for First-Party Applications (FiPA) {{I-D.ietf-oauth-first-party-apps}} defined native
+OAuth 2.0 **direct interaction**, whereby clients call the *Native Authorization Endpoint*
+as an HTTP REST API, obtaining instructions from authorization servers on information to
+collect from users to satisfy authorization server's policies and requirements.
 
 While FiPA {{I-D.ietf-oauth-first-party-apps}} focused on a one-to-one relationship between
 client and authorization server, this document acts as its **extension** adding support
