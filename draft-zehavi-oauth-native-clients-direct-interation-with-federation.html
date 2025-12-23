@@ -8,15 +8,15 @@
 <meta content="Yaron Zehavi" name="author">
 <meta content="Aaron Parecki" name="author">
 <meta content="
-       OAuth 2.0 for First-Party Applications (FiPA)   defined native
-OAuth 2.0  direct interaction , whereby clients call the  Native Authorization Endpoint 
-as an HTTP REST API, obtaining instructions from authorization servers on information to
-collect from users to satisfy authorization server's policies and requirements. 
+       OAuth 2.0 for First-Party Applications (FiPA)   defined a native
+OAuth 2.0  direct interaction , whereby clients call authorization server's  Native Authorization
+Endpoint  as an HTTP REST API, whose response instructs client on required information
+to collect from end-user to satisfy authorization server's policies and requirements. 
        While FiPA   focused on a one-to-one relationship between
-client and authorization server, this document acts as its  extension  adding support
+client and authorization server, this document is an  extension profile  adding support
 for authorization servers to federate the interaction to a downstream authorization server,
-instruct the usage of a native app for user interaction, or instruct collection of additional
-information from users to guide request routing. 
+instruct collection of additional information from users to guide request routing or instruct
+the usage of a native app for user interaction. 
     " name="description">
 <meta content="xml2rfc 3.31.0" name="generator">
 <meta content="native apps" name="keyword">
@@ -1093,15 +1093,15 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <h1 id="title">OAuth 2.0 direct interation for native clients using federation</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">OAuth 2.0 for First-Party Applications (FiPA) <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> defined native
-OAuth 2.0 <strong>direct interaction</strong>, whereby clients call the <em>Native Authorization Endpoint</em>
-as an HTTP REST API, obtaining instructions from authorization servers on information to
-collect from users to satisfy authorization server's policies and requirements.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">OAuth 2.0 for First-Party Applications (FiPA) <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> defined a native
+OAuth 2.0 <strong>direct interaction</strong>, whereby clients call authorization server's <em>Native Authorization
+Endpoint</em> as an HTTP REST API, whose response instructs client on required information
+to collect from end-user to satisfy authorization server's policies and requirements.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 <p id="section-abstract-2">While FiPA <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> focused on a one-to-one relationship between
-client and authorization server, this document acts as its <strong>extension</strong> adding support
+client and authorization server, this document is an <strong>extension profile</strong> adding support
 for authorization servers to federate the interaction to a downstream authorization server,
-instruct the usage of a native app for user interaction, or instruct collection of additional
-information from users to guide request routing.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
+instruct collection of additional information from users to guide request routing or instruct
+the usage of a native app for user interaction.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1271,10 +1271,10 @@ information from users to guide request routing.<a href="#section-abstract-2" cl
 extends FiPA <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> to enable federation based flows,
 while retaining client's direct interaction with end-user.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">The client calls the <em>Native Authorization Endpoint</em> as an HTTP REST API, and receives
-instructions according to the protocol established by FiPA,
-guiding client to call downstream authorization servers and providing their responses
-to federating authorization servers. This establishes a multi authorization server
-federated flow, whose user interactions are driven by the client app.<a href="#section-1-2" class="pilcrow">¶</a></p>
+instructions via the protocol established by FiPA, guiding client to call downstream
+authorization servers and once they respond, provide their responses, to federating
+authorization servers. This establishes a multi authorization server federated flow,
+whose user interactions are driven by the client app.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">This document extends FiPA <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> with new error responses:
 <code>federate</code>, <code>redirect_to_app</code>, <code>insufficient_information</code> and
 <code>native_authorization_federate_unsupported</code>.<a href="#section-1-3" class="pilcrow">¶</a></p>
