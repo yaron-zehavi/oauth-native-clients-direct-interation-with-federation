@@ -201,9 +201,8 @@ This document adds the following request parameter:
 
 ## Native Authorization Response {#native-response}
 
-### Error Response {#native-authorization-error-response}
-
-This document extends FiPA {{I-D.ietf-oauth-first-party-apps}} by adding the following error codes:
+This document extends FiPA's {{I-D.ietf-oauth-first-party-apps}} error response,
+by adding the following error codes:
 
 "error":
 :    REQUIRED.  A single ASCII {{USASCII}} error code from the following:
@@ -249,7 +248,7 @@ And adds the following response attributes:
 :    OPTIONAL.  A URI of an endpoint of federating authorization server
      which shall receive the response from the federated authorization server.
 
-#### Federating Response {#federating-response}
+### Federating Response {#federating-response}
 
 If the authorization server decides to federate to another authorization server, it
 responds with error code *federate* and MUST return the *federation_uri*,
@@ -313,7 +312,7 @@ adding previously obtained auth_session:
     authorization_code=uY29tL2F1dGhlbnRpY
     &auth_session=ce6772f5e07bc8361572f
 
-#### Redirect to app response {#redirect-to-app-response}
+### Redirect to app response {#redirect-to-app-response}
 
 If the authorization server decides to use a native app to interact with
 end user, it responds with error code *redirect_to_app* and MUST return the
@@ -369,7 +368,7 @@ to the authorization server, which redirected it to the app:
     authorization_code=uY29tL2F1dGhlbnRpY
     &auth_session=ce6772f5e07bc8361572f
 
-#### Additional Information Required Response {#insufficient-information}
+### Additional Information Required Response {#insufficient-information}
 
 If additional user input is required, for example to determine where to federate to,
 the response body shall contain the following additional properties:
