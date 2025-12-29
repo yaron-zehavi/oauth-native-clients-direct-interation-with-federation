@@ -278,7 +278,7 @@ as application/x-www-form-urlencoded request body for the *response_uri* of the 
 
 However, when **federated** authorization server returns the following error codes:
 *federate*, *insufficient_authorization*, *insufficient_information*, *redirect_to_app*,
-*redirect_to_web*, client MUST handle these errors according to this specification.
+*redirect_to_web*, client MUST handle these errors according to FiPA {{I-D.ietf-oauth-first-party-apps}} and this specification.
 
 Example client calling receiving an authorization code response from the federated
 authorization server:
