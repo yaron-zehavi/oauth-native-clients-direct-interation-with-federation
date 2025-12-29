@@ -36,7 +36,6 @@ author:
 normative:
   RFC6749:
   RFC9126:
-  RFC9396:
   I-D.ietf-oauth-first-party-apps:
   OpenID.Federation:
     title: OpenID Federation 1.0
