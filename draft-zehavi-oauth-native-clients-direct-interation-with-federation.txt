@@ -5,8 +5,8 @@
 Web Authorization Protocol                                     Y. Zehavi
 Internet-Draft                             Raiffeisen Bank International
 Intended status: Standards Track                              A. Parecki
-Expires: 26 June 2026                                               Okta
-                                                        23 December 2025
+Expires: 2 July 2026                                                Okta
+                                                        29 December 2025
 
 
     OAuth 2.0 direct interation for native clients using federation
@@ -64,7 +64,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 June 2026.
+   This Internet-Draft will expire on 2 July 2026.
 
 Copyright Notice
 
@@ -372,7 +372,8 @@ Table of Contents
    However, when *federated* authorization server returns the following
    error codes: _federate_, _insufficient_authorization_,
    _insufficient_information_, _redirect_to_app_, _redirect_to_web_,
-   client MUST handle these errors according to this specification.
+   client MUST handle these errors according to FiPA
+   [I-D.ietf-oauth-first-party-apps] and this specification.
 
    Example client calling receiving an authorization code response from
    the federated authorization server:
