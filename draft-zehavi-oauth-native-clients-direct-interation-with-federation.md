@@ -66,7 +66,7 @@ While FiPA {{I-D.ietf-oauth-first-party-apps}} focused on a one-to-one relations
 client and authorization server, this document is an **extension profile** adding support
 for authorization servers to federate the interaction to a downstream authorization server,
 instruct collection of additional information from users to guide request routing or instruct
-the usage of a native app for user interaction.
+the usage of another native app for user interaction.
 
 --- middle
 
@@ -173,12 +173,12 @@ Figure: Native client federated, then redirected to app
 The native authorization endpoint defined by FiPA {{I-D.ietf-oauth-first-party-apps}} is used by this document.
 
 This document adds the *native_callback_uri* parameter to the native authorization endpoint, to support
-cross-app native user navigation.
+native user navigation across apps.
 
-Before authorization servers instruct a client to federate to a downstream authorization server, they MUST ensure it offers a *native_authorization_endpoint*, otherwise return the error native_authorization_federate_unsupported*.
+Before an authorization server instructs a client to federate to a downstream authorization server, it SHALL ensure the federated authorization server offers a *native_authorization_endpoint*, otherwise return the error *native_authorization_federate_unsupported*.
 
-When federating to downstream authorization servers, the usage of PAR {{RFC9126}} with client authentication is REQUIRED, as the native client calling the Native Authorization Endpoint of a federated authorization server is not *its* OAuth client and therefore has no other means of authenticating.
-When using PAR with client authentication, the request_uri provided to the Native Authorization Endpoint attests that client authentication took place.
+When federating to downstream authorization servers, the usage of PAR {{RFC9126}} with client authentication is REQUIRED, because when the client interacting with end-user calls the federated authorization server, it is not **its** OAuth client and therefore has no other means of authenticating.
+When using PAR with client authentication, the request_uri provided to the Native Authorization Endpoint attests that client authentication (by the federating authorization server) took place.
 
 ## Native Authorization Request {#native-auth-request}
 
@@ -244,6 +244,7 @@ responds with error code *federate* and MUST return the *federation_uri*,
 *federation_body*, *response_uri* and *auth_session* response attributes.
 
 When federating to another authorization server:
+
 * Federating authorization server MUST use PAR {{RFC9126}} and include *request_uri* in federation_body.
 * If *native_callback_uri* was included in the native authorization request, it MUST be included when calling federated authorization server's Native Authorization Endpoint.
 
@@ -303,7 +304,7 @@ adding previously obtained auth_session:
 
 ### Redirect to app response {#redirect-to-app-response}
 
-If the authorization server decides to use a native app to interact with
+If the authorization server decides to nominate another native app to interact with
 end user, it responds with error code *redirect_to_app* and MUST return the
 *deep_link* response attribute.
 
@@ -339,9 +340,10 @@ However we assume closed ecosystems could employ an allowList, and open ecosyste
   * Inspect client's metadata for redirect_uri's and validate **native_callback_uri** is included among them.
 
 When the client is invoked on its native_callback_uri, it shall regard the invocation as a
-response **from** the authorization server which redirected the client to the app.
-In other words, this response's audience is not the authorization server which redirected
-the client to the app. See {{federating-response}} for details.
+response from the authorization server which instructed *redirect_to_app*.
+Therefore, obtained response's audience is the authorization server which federated
+the client to the authorization server which redirected the client to the app.
+See {{federating-response}} for details.
 
 Example URI used to invoke of client app on its claimed native_callback_uri:
 
@@ -351,7 +353,7 @@ Example client invoking the response_uri **of the authorization server which fed
 to the authorization server, which redirected it to the app:
 
     POST /native-authorization HTTP/1.1
-    Host: **prev-as.com**
+    Host: prev-as.com
     Content-Type: application/x-www-form-urlencoded
 
     authorization_code=uY29tL2F1dGhlbnRpY
@@ -469,8 +471,8 @@ Example of *Client App* response following end-user input entry:
 A federated authorization server should consider end-user's privacy and security
 to determine if it should present authorization challenges in federation scenarios.
 For example, it can label **federating** clients as such and avoid serving them
-authorization challenges, as user-serving clients receiving those challenges are
-not first party clients.
+(i.e: client's interacting on their behalf) authorization challenges involving
+sensitive data, as these are not first party clients.
 
 # IANA Considerations
 
