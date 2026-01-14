@@ -16,7 +16,7 @@ to collect from end-user to satisfy authorization server's policies and requirem
 client and authorization server, this document is an  extension profile  adding support
 for authorization servers to federate the interaction to a downstream authorization server,
 instruct collection of additional information from users to guide request routing or instruct
-the usage of a native app for user interaction. 
+the usage of another native app for user interaction. 
     " name="description">
 <meta content="xml2rfc 3.31.0" name="generator">
 <meta content="native apps" name="keyword">
@@ -28,7 +28,7 @@ the usage of a native app for user interaction.
     Python 3.12.12
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
-    intervaltree 3.1.0
+    intervaltree 3.2.1
     Jinja2 3.1.6
     lxml 6.0.2
     platformdirs 4.5.1
@@ -1054,11 +1054,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">OAuth native clients with federation</td>
-<td class="right">December 2025</td>
+<td class="right">January 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Zehavi &amp; Parecki</td>
-<td class="center">Expires 2 July 2026</td>
+<td class="center">Expires 18 July 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1071,12 +1071,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-zehavi-oauth-native-clients-direct-interation-with-federation-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-12-29" class="published">29 December 2025</time>
+<time datetime="2026-01-14" class="published">14 January 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-07-02">2 July 2026</time></dd>
+<dd class="expires"><time datetime="2026-07-18">18 July 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1101,7 +1101,7 @@ to collect from end-user to satisfy authorization server's policies and requirem
 client and authorization server, this document is an <strong>extension profile</strong> adding support
 for authorization servers to federate the interaction to a downstream authorization server,
 instruct collection of additional information from users to guide request routing or instruct
-the usage of a native app for user interaction.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
+the usage of another native app for user interaction.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1138,7 +1138,7 @@ the usage of a native app for user interaction.<a href="#section-abstract-2" cla
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 2 July 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 18 July 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1147,7 +1147,7 @@ the usage of a native app for user interaction.<a href="#section-abstract-2" cla
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2025 IETF Trust and the persons identified as the
+            Copyright (c) 2026 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1415,10 +1415,10 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         </h3>
 <p id="section-4.1-1">The native authorization endpoint defined by FiPA <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> is used by this document.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.1-2">This document adds the <em>native_callback_uri</em> parameter to the native authorization endpoint, to support
-cross-app native user navigation.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
-<p id="section-4.1-3">Before authorization servers instruct a client to federate to a downstream authorization server, they <span class="bcp14">MUST</span> ensure it offers a <em>native_authorization_endpoint</em>, otherwise return the error native_authorization_federate_unsupported*.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
-<p id="section-4.1-4">When federating to downstream authorization servers, the usage of PAR <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> with client authentication is <span class="bcp14">REQUIRED</span>, as the native client calling the Native Authorization Endpoint of a federated authorization server is not <em>its</em> OAuth client and therefore has no other means of authenticating.
-When using PAR with client authentication, the request_uri provided to the Native Authorization Endpoint attests that client authentication took place.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
+native user navigation across apps.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.1-3">Before an authorization server instructs a client to federate to a downstream authorization server, it <span class="bcp14">SHALL</span> ensure the federated authorization server offers a <em>native_authorization_endpoint</em>, otherwise return the error <em>native_authorization_federate_unsupported</em>.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1-4">When federating to downstream authorization servers, the usage of PAR <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> with client authentication is <span class="bcp14">REQUIRED</span>, because when the client interacting with end-user calls the federated authorization server, it is not <strong>its</strong> OAuth client and therefore has no other means of authenticating.
+When using PAR with client authentication, the request_uri provided to the Native Authorization Endpoint attests that client authentication (by the federating authorization server) took place.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="native-auth-request">
@@ -1519,11 +1519,17 @@ which shall receive the response from the federated authorization server.<a href
 <p id="section-4.3.1-1">If the authorization server decides to federate to another authorization server, it
 responds with error code <em>federate</em> and <span class="bcp14">MUST</span> return the <em>federation_uri</em>,
 <em>federation_body</em>, <em>response_uri</em> and <em>auth_session</em> response attributes.<a href="#section-4.3.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.1-2">When federating to another authorization server:
-* Federating authorization server <span class="bcp14">MUST</span> use PAR <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> and include <em>request_uri</em> in federation_body.
-* If <em>native_callback_uri</em> was included in the native authorization request, it <span class="bcp14">MUST</span> be included when calling federated authorization server's Native Authorization Endpoint.<a href="#section-4.3.1-2" class="pilcrow">¶</a></p>
-<p id="section-4.3.1-3">Example <strong>federating</strong> response:<a href="#section-4.3.1-3" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.3.1-4">
+<p id="section-4.3.1-2">When federating to another authorization server:<a href="#section-4.3.1-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.3.1-3.1">
+              <p id="section-4.3.1-3.1.1">Federating authorization server <span class="bcp14">MUST</span> use PAR <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> and include <em>request_uri</em> in federation_body.<a href="#section-4.3.1-3.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.3.1-3.2">
+              <p id="section-4.3.1-3.2.1">If <em>native_callback_uri</em> was included in the native authorization request, it <span class="bcp14">MUST</span> be included when calling federated authorization server's Native Authorization Endpoint.<a href="#section-4.3.1-3.2.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-4.3.1-4">Example <strong>federating</strong> response:<a href="#section-4.3.1-4" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.3.1-5">
 <pre>
 HTTP/1.1 400 Bad Request
 Content-Type: application/json
@@ -1536,11 +1542,11 @@ Content-Type: application/json
     "federation_body": "client_id=s6BhdRkqt3&amp;request_uri=
       urn:ietf:params:oauth:request_uri:R3p_hzwsR7outNQSKfoX"
 }
-</pre><a href="#section-4.3.1-4" class="pilcrow">¶</a>
+</pre><a href="#section-4.3.1-5" class="pilcrow">¶</a>
 </div>
-<p id="section-4.3.1-5">Client <span class="bcp14">MUST</span> call the <em>federation_uri</em> using HTTP POST, and provide it <em>federation_body</em>
-as application/x-www-form-urlencoded request body. Example:<a href="#section-4.3.1-5" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.3.1-6">
+<p id="section-4.3.1-6">Client <span class="bcp14">MUST</span> call the <em>federation_uri</em> using HTTP POST, and provide it <em>federation_body</em>
+as application/x-www-form-urlencoded request body. Example:<a href="#section-4.3.1-6" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.3.1-7">
 <pre>
 POST /native-authorization HTTP/1.1
 Host: next-as.com
@@ -1548,17 +1554,17 @@ Content-Type: application/x-www-form-urlencoded
 
 client_id=s6BhdRkqt3&amp;request_uri=
 urn:ietf:params:oauth:request_uri:R3p_hzwsR7outNQSKfoX
-</pre><a href="#section-4.3.1-6" class="pilcrow">¶</a>
+</pre><a href="#section-4.3.1-7" class="pilcrow">¶</a>
 </div>
-<p id="section-4.3.1-7">The client <span class="bcp14">MUST</span> provide any response obtained from the <strong>federated</strong> authorization server,
+<p id="section-4.3.1-8">The client <span class="bcp14">MUST</span> provide any response obtained from the <strong>federated</strong> authorization server,
 as application/x-www-form-urlencoded request body for the <em>response_uri</em> of the respective
-<strong>federating</strong> authorization server which <span class="bcp14">SHALL</span> be invoked using HTTP POST.<a href="#section-4.3.1-7" class="pilcrow">¶</a></p>
-<p id="section-4.3.1-8">However, when <strong>federated</strong> authorization server returns the following error codes:
+<strong>federating</strong> authorization server which <span class="bcp14">SHALL</span> be invoked using HTTP POST.<a href="#section-4.3.1-8" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-9">However, when <strong>federated</strong> authorization server returns the following error codes:
 <em>federate</em>, <em>insufficient_authorization</em>, <em>insufficient_information</em>, <em>redirect_to_app</em>,
-<em>redirect_to_web</em>, client <span class="bcp14">MUST</span> handle these errors according to FiPA <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> and this specification.<a href="#section-4.3.1-8" class="pilcrow">¶</a></p>
-<p id="section-4.3.1-9">Example client calling receiving an authorization code response from the federated
-authorization server:<a href="#section-4.3.1-9" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.3.1-10">
+<em>redirect_to_web</em>, client <span class="bcp14">MUST</span> handle these errors according to FiPA <span>[<a href="#I-D.ietf-oauth-first-party-apps" class="cite xref">I-D.ietf-oauth-first-party-apps</a>]</span> and this specification.<a href="#section-4.3.1-9" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-10">Example client calling receiving an authorization code response from the federated
+authorization server:<a href="#section-4.3.1-10" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.3.1-11">
 <pre>
 HTTP/1.1 200 OK
 Server: next-as.com
@@ -1568,11 +1574,11 @@ Cache-Control: no-store
 {
   "authorization_code": "uY29tL2F1dGhlbnRpY"
 }
-</pre><a href="#section-4.3.1-10" class="pilcrow">¶</a>
+</pre><a href="#section-4.3.1-11" class="pilcrow">¶</a>
 </div>
-<p id="section-4.3.1-11">And providing it to the federating authorization server's response_uri,
-adding previously obtained auth_session:<a href="#section-4.3.1-11" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.3.1-12">
+<p id="section-4.3.1-12">And providing it to the federating authorization server's response_uri,
+adding previously obtained auth_session:<a href="#section-4.3.1-12" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.3.1-13">
 <pre>
 POST /native-authorization HTTP/1.1
 Host: prev-as.com
@@ -1580,7 +1586,7 @@ Content-Type: application/x-www-form-urlencoded
 
 authorization_code=uY29tL2F1dGhlbnRpY
 &amp;auth_session=ce6772f5e07bc8361572f
-</pre><a href="#section-4.3.1-12" class="pilcrow">¶</a>
+</pre><a href="#section-4.3.1-13" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -1589,7 +1595,7 @@ authorization_code=uY29tL2F1dGhlbnRpY
           <h4 id="name-redirect-to-app-response">
 <a href="#section-4.3.2" class="section-number selfRef">4.3.2. </a><a href="#name-redirect-to-app-response" class="section-name selfRef">Redirect to app response</a>
           </h4>
-<p id="section-4.3.2-1">If the authorization server decides to use a native app to interact with
+<p id="section-4.3.2-1">If the authorization server decides to nominate another native app to interact with
 end user, it responds with error code <em>redirect_to_app</em> and <span class="bcp14">MUST</span> return the
 <em>deep_link</em> response attribute.<a href="#section-4.3.2-1" class="pilcrow">¶</a></p>
 <p id="section-4.3.2-2">Example <strong>redirect_to_app</strong> response:<a href="#section-4.3.2-2" class="pilcrow">¶</a></p>
@@ -1639,9 +1645,10 @@ However we assume closed ecosystems could employ an allowList, and open ecosyste
 </li>
           </ul>
 <p id="section-4.3.2-9">When the client is invoked on its native_callback_uri, it shall regard the invocation as a
-response <strong>from</strong> the authorization server which redirected the client to the app.
-In other words, this response's audience is not the authorization server which redirected
-the client to the app. See <a href="#federating-response" class="auto internal xref">Section 4.3.1</a> for details.<a href="#section-4.3.2-9" class="pilcrow">¶</a></p>
+response from the authorization server which instructed <em>redirect_to_app</em>.
+Therefore, obtained response's audience is the authorization server which federated
+the client to the authorization server which redirected the client to the app.
+See <a href="#federating-response" class="auto internal xref">Section 4.3.1</a> for details.<a href="#section-4.3.2-9" class="pilcrow">¶</a></p>
 <p id="section-4.3.2-10">Example URI used to invoke of client app on its claimed native_callback_uri:<a href="#section-4.3.2-10" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.3.2-11">
 <pre>
@@ -1653,7 +1660,7 @@ to the authorization server, which redirected it to the app:<a href="#section-4.
 <div class="alignLeft art-text artwork" id="section-4.3.2-13">
 <pre>
 POST /native-authorization HTTP/1.1
-Host: **prev-as.com**
+Host: prev-as.com
 Content-Type: application/x-www-form-urlencoded
 
 authorization_code=uY29tL2F1dGhlbnRpY
@@ -1826,8 +1833,8 @@ auth_session=ce6772f5e07bc8361572f
 <p id="section-5.1-1">A federated authorization server should consider end-user's privacy and security
 to determine if it should present authorization challenges in federation scenarios.
 For example, it can label <strong>federating</strong> clients as such and avoid serving them
-authorization challenges, as user-serving clients receiving those challenges are
-not first party clients.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+(i.e: client's interacting on their behalf) authorization challenges involving
+sensitive data, as these are not first party clients.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

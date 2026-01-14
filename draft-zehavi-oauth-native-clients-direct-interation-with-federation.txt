@@ -5,8 +5,8 @@
 Web Authorization Protocol                                     Y. Zehavi
 Internet-Draft                             Raiffeisen Bank International
 Intended status: Standards Track                              A. Parecki
-Expires: 2 July 2026                                                Okta
-                                                        29 December 2025
+Expires: 18 July 2026                                               Okta
+                                                         14 January 2026
 
 
     OAuth 2.0 direct interation for native clients using federation
@@ -26,7 +26,7 @@ Abstract
    is an *extension profile* adding support for authorization servers to
    federate the interaction to a downstream authorization server,
    instruct collection of additional information from users to guide
-   request routing or instruct the usage of a native app for user
+   request routing or instruct the usage of another native app for user
    interaction.
 
 About This Document
@@ -64,11 +64,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 2 July 2026.
+   This Internet-Draft will expire on 18 July 2026.
 
 Copyright Notice
 
-   Copyright (c) 2025 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -252,20 +252,23 @@ Table of Contents
    [I-D.ietf-oauth-first-party-apps] is used by this document.
 
    This document adds the _native_callback_uri_ parameter to the native
-   authorization endpoint, to support cross-app native user navigation.
+   authorization endpoint, to support native user navigation across
+   apps.
 
-   Before authorization servers instruct a client to federate to a
-   downstream authorization server, they MUST ensure it offers a
-   _native_authorization_endpoint_, otherwise return the error
-   native_authorization_federate_unsupported*.
+   Before an authorization server instructs a client to federate to a
+   downstream authorization server, it SHALL ensure the federated
+   authorization server offers a _native_authorization_endpoint_,
+   otherwise return the error
+   _native_authorization_federate_unsupported_.
 
    When federating to downstream authorization servers, the usage of PAR
-   [RFC9126] with client authentication is REQUIRED, as the native
-   client calling the Native Authorization Endpoint of a federated
-   authorization server is not _its_ OAuth client and therefore has no
-   other means of authenticating.  When using PAR with client
-   authentication, the request_uri provided to the Native Authorization
-   Endpoint attests that client authentication took place.
+   [RFC9126] with client authentication is REQUIRED, because when the
+   client interacting with end-user calls the federated authorization
+   server, it is not *its* OAuth client and therefore has no other means
+   of authenticating.  When using PAR with client authentication, the
+   request_uri provided to the Native Authorization Endpoint attests
+   that client authentication (by the federating authorization server)
+   took place.
 
 4.2.  Native Authorization Request
 
@@ -333,11 +336,14 @@ Table of Contents
    return the _federation_uri_, _federation_body_, _response_uri_ and
    _auth_session_ response attributes.
 
-   When federating to another authorization server: * Federating
-   authorization server MUST use PAR [RFC9126] and include _request_uri_
-   in federation_body. * If _native_callback_uri_ was included in the
-   native authorization request, it MUST be included when calling
-   federated authorization server's Native Authorization Endpoint.
+   When federating to another authorization server:
+
+   *  Federating authorization server MUST use PAR [RFC9126] and include
+      _request_uri_ in federation_body.
+
+   *  If _native_callback_uri_ was included in the native authorization
+      request, it MUST be included when calling federated authorization
+      server's Native Authorization Endpoint.
 
    Example *federating* response:
 
@@ -399,9 +405,9 @@ Table of Contents
 
 4.3.2.  Redirect to app response
 
-   If the authorization server decides to use a native app to interact
-   with end user, it responds with error code _redirect_to_app_ and MUST
-   return the _deep_link_ response attribute.
+   If the authorization server decides to nominate another native app to
+   interact with end user, it responds with error code _redirect_to_app_
+   and MUST return the _deep_link_ response attribute.
 
    Example *redirect_to_app* response:
 
@@ -448,10 +454,11 @@ Table of Contents
       *native_callback_uri* is included among them.
 
    When the client is invoked on its native_callback_uri, it shall
-   regard the invocation as a response *from* the authorization server
-   which redirected the client to the app.  In other words, this
-   response's audience is not the authorization server which redirected
-   the client to the app.  See Section 4.3.1 for details.
+   regard the invocation as a response from the authorization server
+   which instructed _redirect_to_app_. Therefore, obtained response's
+   audience is the authorization server which federated the client to
+   the authorization server which redirected the client to the app.  See
+   Section 4.3.1 for details.
 
    Example URI used to invoke of client app on its claimed
    native_callback_uri:
@@ -463,7 +470,7 @@ Table of Contents
    to the app:
 
    POST /native-authorization HTTP/1.1
-   Host: **prev-as.com**
+   Host: prev-as.com
    Content-Type: application/x-www-form-urlencoded
 
    authorization_code=uY29tL2F1dGhlbnRpY
@@ -602,9 +609,9 @@ Table of Contents
    A federated authorization server should consider end-user's privacy
    and security to determine if it should present authorization
    challenges in federation scenarios.  For example, it can label
-   *federating* clients as such and avoid serving them authorization
-   challenges, as user-serving clients receiving those challenges are
-   not first party clients.
+   *federating* clients as such and avoid serving them (i.e: client's
+   interacting on their behalf) authorization challenges involving
+   sensitive data, as these are not first party clients.
 
 6.  IANA Considerations
 
